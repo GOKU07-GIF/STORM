@@ -1,0 +1,6957 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        STORMIS — Extreme Weather Intelligence
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <style>
+
+        /* =====================================================
+           GLOBAL
+        ====================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+
+            font-family:
+                Inter,
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background: #07111f;
+
+            color: #e8f0f8;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+        .app {
+            min-height: 100vh;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ====================================================== */
+
+        header {
+
+            height: 72px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 28px;
+
+            border-bottom:
+                1px solid #1c3045;
+
+            background: #091625;
+        }
+
+        .brand {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 14px;
+        }
+
+        .brand-mark {
+
+            width: 42px;
+
+            height: 42px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 12px;
+
+            background: #102b42;
+
+            border:
+                1px solid #2b668f;
+
+            color: #62c6ff;
+
+            font-weight: 800;
+
+            font-size: 17px;
+        }
+
+        .brand-title {
+
+            font-size: 20px;
+
+            font-weight: 800;
+
+            letter-spacing: 1px;
+        }
+
+        .brand-subtitle {
+
+            margin-top: 3px;
+
+            color: #7890a7;
+
+            font-size: 11px;
+        }
+
+        .header-right {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 14px;
+        }
+
+        .problem-id {
+
+            color: #7d93a8;
+
+            font-size: 12px;
+        }
+
+        .demo-badge {
+
+            padding:
+                7px 12px;
+
+            border-radius: 20px;
+
+            background: #342b16;
+
+            border:
+                1px solid #81651e;
+
+            color: #f4ce5a;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            letter-spacing: .7px;
+        }
+
+
+        /* =====================================================
+           MAIN
+        ====================================================== */
+
+        main {
+
+            max-width: 1600px;
+
+            margin: auto;
+
+            padding:
+                22px 28px 40px;
+        }
+
+        .panel {
+
+            background: #0b1929;
+
+            border:
+                1px solid #1b3248;
+
+            border-radius: 12px;
+
+            overflow: hidden;
+        }
+
+        .panel-header {
+
+            min-height: 52px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding:
+                0 17px;
+
+            border-bottom:
+                1px solid #1b3248;
+        }
+
+        .panel-title {
+
+            font-size: 13px;
+
+            font-weight: 800;
+
+            letter-spacing: .6px;
+        }
+
+        .panel-tag {
+
+            color: #688096;
+
+            font-size: 10px;
+        }
+
+
+        /* =====================================================
+           KPI
+        ====================================================== */
+
+        .kpi-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 14px;
+
+            margin-bottom: 18px;
+        }
+
+        .kpi {
+
+            padding: 18px;
+
+            background: #0b1929;
+
+            border:
+                1px solid #1b3248;
+
+            border-radius: 12px;
+        }
+
+        .kpi-label {
+
+            color: #71879c;
+
+            font-size: 11px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1px;
+        }
+
+        .kpi-value {
+
+            margin-top: 8px;
+
+            font-size: 25px;
+
+            font-weight: 800;
+        }
+
+        .kpi-small {
+
+            margin-top: 5px;
+
+            color: #668096;
+
+            font-size: 11px;
+        }
+
+        .online {
+            color: #53d79d;
+        }
+
+
+        /* =====================================================
+           MAIN GRID
+        ====================================================== */
+
+        .main-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 2.2fr)
+                minmax(320px, .8fr);
+
+            gap: 18px;
+        }
+
+
+        /* =====================================================
+           MAP
+        ====================================================== */
+
+        .map-wrapper {
+
+            position: relative;
+        }
+
+        #map {
+
+            width: 100%;
+
+            height: 560px;
+        }
+
+        .map-status {
+
+            position: absolute;
+
+            z-index: 900;
+
+            top: 12px;
+
+            left: 52px;
+
+            padding:
+                8px 11px;
+
+            background:
+                rgba(7,17,31,.94);
+
+            border:
+                1px solid #28445d;
+
+            border-radius: 8px;
+
+            color: #8da4b9;
+
+            font-size: 11px;
+        }
+
+        .map-time {
+
+            position: absolute;
+
+            z-index: 900;
+
+            top: 12px;
+
+            right: 12px;
+
+            padding:
+                8px 11px;
+
+            background:
+                rgba(7,17,31,.94);
+
+            border:
+                1px solid #28445d;
+
+            border-radius: 8px;
+
+            color: #62c6ff;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            letter-spacing: .7px;
+        }
+
+
+        /* =====================================================
+           LEGEND
+        ====================================================== */
+
+        .map-legend {
+
+            position: absolute;
+
+            z-index: 900;
+
+            left: 12px;
+
+            bottom: 12px;
+
+            min-width: 215px;
+
+            padding: 12px;
+
+            background:
+                rgba(7,17,31,.95);
+
+            border:
+                1px solid #28445d;
+
+            border-radius: 9px;
+
+            box-shadow:
+                0 8px 25px
+                rgba(0,0,0,.25);
+        }
+
+        .legend-title {
+
+            margin-bottom: 8px;
+
+            color: #90a7bb;
+
+            font-size: 9px;
+
+            text-transform: uppercase;
+
+            letter-spacing: .8px;
+        }
+
+        .legend-row {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            margin-top: 6px;
+
+            color: #adbdca;
+
+            font-size: 9px;
+        }
+
+        .legend-box {
+
+            width: 12px;
+
+            height: 12px;
+
+            flex-shrink: 0;
+
+            border-radius: 2px;
+        }
+
+        .legend-12km {
+
+            background:
+                rgba(43,102,143,.12);
+
+            border:
+                2px solid #4ea4d0;
+        }
+
+        .legend-hotspot {
+
+            width: 12px;
+
+            height: 12px;
+
+            border-radius: 50%;
+
+            background: #e94d3d;
+
+            border:
+                2px solid #ffd6d0;
+        }
+
+        .legend-area {
+
+            background:
+                rgba(225,159,64,.08);
+
+            border:
+                2px dashed #e0a044;
+        }
+
+        .legend-5km {
+
+            background:
+                rgba(22,143,177,.14);
+
+            border:
+                2px solid #67d7ff;
+        }
+
+        .legend-line {
+
+            width: 18px;
+
+            height: 3px;
+
+            border-radius: 3px;
+
+            background: #62c6ff;
+        }
+
+
+        /* =====================================================
+           MAP LABEL
+        ====================================================== */
+
+        .map-label {
+
+            background: transparent;
+
+            border: none;
+
+            box-shadow: none;
+
+            pointer-events: none;
+        }
+
+        .map-label span {
+
+            display: inline-block;
+
+            padding:
+                4px 6px;
+
+            border-radius: 4px;
+
+            white-space: nowrap;
+
+            font-size: 9px;
+
+            font-weight: 800;
+
+            letter-spacing: .35px;
+        }
+
+        .label-12km span {
+
+            background:
+                rgba(15,71,101,.96);
+
+            border:
+                1px solid #4ea4d0;
+
+            color: #d9f4ff;
+        }
+
+        .label-5km span {
+
+            background:
+                rgba(8,91,113,.96);
+
+            border:
+                1px solid #67d7ff;
+
+            color: #e4fbff;
+        }
+
+        .label-area span {
+
+            background:
+                rgba(103,69,26,.96);
+
+            border:
+                1px dashed #e0a044;
+
+            color: #ffdfa7;
+        }
+
+
+        /* =====================================================
+           MAP INFO
+        ====================================================== */
+
+        .map-info-bar {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3,1fr);
+
+            gap: 8px;
+
+            padding:
+                10px 12px;
+
+            border-top:
+                1px solid #172c40;
+
+            background: #091724;
+        }
+
+        .map-info-item {
+
+            padding:
+                8px 10px;
+
+            background: #0d2031;
+
+            border:
+                1px solid #1d394e;
+
+            border-radius: 7px;
+        }
+
+        .map-info-label {
+
+            color: #617b8f;
+
+            font-size: 8px;
+
+            text-transform: uppercase;
+
+            letter-spacing: .7px;
+        }
+
+        .map-info-value {
+
+            margin-top: 4px;
+
+            color: #dcecf6;
+
+            font-size: 10px;
+
+            font-weight: 800;
+        }
+
+
+        /* =====================================================
+           MAP CONTROLS
+        ====================================================== */
+
+        .map-controls {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 7px;
+
+            padding:
+                10px 13px;
+
+            border-top:
+                1px solid #172c40;
+
+            background: #091724;
+        }
+
+        .map-control {
+
+            padding:
+                6px 9px;
+
+            background: #0d2031;
+
+            border:
+                1px solid #28445d;
+
+            border-radius: 6px;
+
+            color: #8ea6ba;
+
+            font-size: 9px;
+
+            cursor: pointer;
+        }
+
+        .map-control.active {
+
+            background: #12334a;
+
+            border-color: #3f87ad;
+
+            color: #72cffb;
+        }
+
+
+        /* =====================================================
+           BASEMAP CONTROLS
+        ====================================================== */
+
+        .basemap-group {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 4px;
+
+            padding: 3px;
+
+            background: #081522;
+
+            border: 1px solid #1f3a50;
+
+            border-radius: 8px;
+        }
+
+        .basemap-label {
+
+            padding:
+                0 5px;
+
+            color: #627b8e;
+
+            font-size: 8px;
+
+            font-weight: 800;
+
+            letter-spacing: .6px;
+        }
+
+        .base-map-button {
+
+            padding:
+                5px 8px;
+
+            background: transparent;
+
+            border: 1px solid transparent;
+
+            border-radius: 5px;
+
+            color: #7d95a8;
+
+            font-size: 8px;
+
+            font-weight: 800;
+
+            cursor: pointer;
+        }
+
+        .base-map-button:hover {
+
+            color: #c6eaff;
+
+            background: #102a3c;
+        }
+
+        .base-map-button.active {
+
+            background: #123b52;
+
+            border-color: #2d7298;
+
+            color: #7cd8ff;
+        }
+
+
+        /* =====================================================
+           EVENT
+        ====================================================== */
+
+        .event-content {
+
+            padding: 18px;
+        }
+
+        .event-id {
+
+            color: #62c6ff;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            letter-spacing: 1px;
+        }
+
+        .event-name {
+
+            margin-top: 7px;
+
+            font-size: 22px;
+
+            font-weight: 800;
+        }
+
+        .severity {
+
+            display: inline-block;
+
+            margin-top: 12px;
+
+            padding:
+                6px 10px;
+
+            background: #3b211e;
+
+            border:
+                1px solid #793d35;
+
+            border-radius: 6px;
+
+            color: #ff9588;
+
+            font-size: 11px;
+
+            font-weight: 800;
+        }
+
+        .event-details {
+
+            margin-top: 20px;
+        }
+
+        .detail-row {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            gap: 20px;
+
+            padding:
+                10px 0;
+
+            border-bottom:
+                1px solid #15283a;
+        }
+
+        .detail-label {
+
+            color: #71879c;
+
+            font-size: 11px;
+        }
+
+        .detail-value {
+
+            text-align: right;
+
+            font-size: 12px;
+
+            font-weight: 700;
+        }
+
+
+        /* =====================================================
+           RUN BUTTON
+        ====================================================== */
+
+        .run-button {
+
+            width: 100%;
+
+            margin-top: 20px;
+
+            padding: 14px;
+
+            background: #1675aa;
+
+            border: none;
+
+            border-radius: 8px;
+
+            color: white;
+
+            font-size: 12px;
+
+            font-weight: 800;
+
+            letter-spacing: .8px;
+
+            cursor: pointer;
+        }
+
+        .run-button:hover {
+
+            background: #218dcc;
+        }
+
+        .run-button:disabled {
+
+            opacity: .55;
+
+            cursor: not-allowed;
+        }
+
+
+        /* =====================================================
+           PIPELINE
+        ====================================================== */
+
+        .pipeline {
+
+            margin-top: 18px;
+        }
+
+        .pipeline-list {
+
+            padding:
+                15px 17px;
+        }
+
+        .pipeline-step {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+
+            padding:
+                9px 0;
+
+            border-bottom:
+                1px solid #14283a;
+        }
+
+        .pipeline-step:last-child {
+
+            border-bottom: none;
+        }
+
+        .pipeline-dot {
+
+            width: 9px;
+
+            height: 9px;
+
+            border-radius: 50%;
+
+            background: #344a5d;
+        }
+
+        .pipeline-dot.active {
+
+            background: #62c6ff;
+
+            box-shadow:
+                0 0 12px
+                rgba(98,198,255,.8);
+        }
+
+        .pipeline-dot.done {
+
+            background: #52d49b;
+        }
+
+        .pipeline-name {
+
+            flex: 1;
+
+            font-size: 11px;
+        }
+
+        .pipeline-status {
+
+            color: #647d93;
+
+            font-size: 10px;
+
+            text-transform: uppercase;
+        }
+
+
+        /* =====================================================
+           BOTTOM GRID
+        ====================================================== */
+
+        .bottom-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                1.25fr
+                1fr
+                1fr;
+
+            gap: 18px;
+
+            margin-top: 18px;
+        }
+
+
+        /* =====================================================
+           TIMELINE
+        ====================================================== */
+
+        .timeline {
+
+            padding: 20px;
+        }
+
+        .timeline-track {
+
+            display: flex;
+
+            align-items: center;
+
+            margin-top: 18px;
+        }
+
+        .timeline-point {
+
+            width: 18px;
+
+            height: 18px;
+
+            flex-shrink: 0;
+
+            border-radius: 50%;
+
+            background: #365168;
+
+            border:
+                2px solid #7391a9;
+
+            cursor: pointer;
+
+            transition:
+                transform .2s ease,
+                background .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .timeline-point:hover {
+
+            transform:
+                scale(1.3);
+
+            border-color:
+                #b7ecff;
+
+            box-shadow:
+                0 0 16px
+                rgba(98,198,255,.6);
+        }
+
+        .timeline-point.active {
+
+            background: #62c6ff;
+
+            border-color: #9ddfff;
+
+            box-shadow:
+                0 0 15px
+                rgba(98,198,255,.7);
+        }
+
+        .timeline-point.current {
+
+            transform:
+                scale(1.3);
+
+            background: #ffffff;
+
+            border-color: #62c6ff;
+
+            box-shadow:
+                0 0 18px
+                rgba(98,198,255,.9);
+        }
+
+        .timeline-line {
+
+            height: 2px;
+
+            flex: 1;
+
+            background: #28445a;
+        }
+
+        .timeline-labels {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            margin-top: 10px;
+
+            color: #71879c;
+
+            font-size: 10px;
+        }
+
+        .timeline-location-row {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4,1fr);
+
+            margin-top: 12px;
+
+            color: #627a8e;
+
+            font-size: 9px;
+
+            text-align: center;
+        }
+
+        .timeline-hint {
+
+            margin-top: 10px;
+
+            padding:
+                7px 9px;
+
+            background: #091724;
+
+            border:
+                1px solid #193349;
+
+            border-radius: 6px;
+
+            color: #688398;
+
+            font-size: 9px;
+
+            text-align: center;
+        }
+
+
+        /* =====================================================
+           TREND
+        ====================================================== */
+
+        .trend-area {
+
+            margin-top: 18px;
+
+            padding: 12px;
+
+            background: #091724;
+
+            border:
+                1px solid #193349;
+
+            border-radius: 8px;
+        }
+
+        .trend-header {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            color: #71879c;
+
+            font-size: 9px;
+
+            text-transform: uppercase;
+        }
+
+        .trend-value {
+
+            color: #62c6ff;
+
+            font-weight: 800;
+        }
+
+        .trend-bars {
+
+            height: 62px;
+
+            display: flex;
+
+            align-items: flex-end;
+
+            gap: 7px;
+
+            margin-top: 11px;
+        }
+
+        .trend-bar {
+
+            flex: 1;
+
+            min-height: 4px;
+
+            border-radius:
+                3px 3px 0 0;
+
+            background: #2f83b0;
+
+            transition:
+                height .4s ease;
+        }
+
+        .trend-bar.active {
+
+            background: #62c6ff;
+        }
+
+
+        /* =====================================================
+           RESOLUTION
+        ====================================================== */
+
+        .comparison {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 15px;
+
+            padding: 17px;
+        }
+
+        .grid-title {
+
+            margin-bottom: 4px;
+
+            color: #71879c;
+
+            font-size: 10px;
+
+            text-transform: uppercase;
+        }
+
+        .grid-subtitle {
+
+            margin-bottom: 9px;
+
+            color: #4f6c80;
+
+            font-size: 8px;
+        }
+
+        .mini-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3,1fr);
+
+            aspect-ratio: 1;
+
+            background:
+                rgba(21,63,87,.25);
+
+            border:
+                2px solid #4ea4d0;
+        }
+
+        .mini-grid.fine {
+
+            grid-template-columns:
+                repeat(2,1fr);
+
+            border-color:
+                #67d7ff;
+        }
+
+        .mini-cell {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background:
+                rgba(21,50,68,.8);
+
+            border:
+                1px solid #31556b;
+
+            color: #9eb3c3;
+
+            font-size: 10px;
+        }
+
+        .mini-cell.hot {
+
+            background:
+                rgba(157,62,44,.85);
+
+            color: #fff0eb;
+        }
+
+        .mini-grid.fine
+        .mini-cell {
+
+            background:
+                rgba(16,58,75,.7);
+
+            border-color:
+                #32677b;
+        }
+
+        .mini-grid.fine
+        .mini-cell.hot {
+
+            background:
+                rgba(11,113,140,.9);
+
+            color: #e7fcff;
+        }
+
+        .refinement-stats {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2,1fr);
+
+            gap: 7px;
+
+            margin:
+                0 17px 17px;
+        }
+
+        .ref-stat {
+
+            padding: 8px;
+
+            background: #091724;
+
+            border:
+                1px solid #1b3448;
+
+            border-radius: 7px;
+        }
+
+        .ref-stat-label {
+
+            color: #61798c;
+
+            font-size: 8px;
+
+            text-transform: uppercase;
+        }
+
+        .ref-stat-value {
+
+            margin-top: 4px;
+
+            font-size: 11px;
+
+            font-weight: 800;
+        }
+
+
+        /* =====================================================
+           VALIDATION
+        ====================================================== */
+
+        .validation-body {
+
+            padding: 17px;
+        }
+
+        .validation-banner {
+
+            padding:
+                9px 10px;
+
+            margin-bottom: 12px;
+
+            background:
+                #10293a;
+
+            border:
+                1px solid #2d617d;
+
+            border-radius: 7px;
+
+            color: #7dd7ff;
+
+            font-size: 9px;
+
+            font-weight: 800;
+
+            text-transform: uppercase;
+
+            letter-spacing: .7px;
+        }
+
+        .validation-reference {
+
+            margin-bottom: 12px;
+
+            color: #667f92;
+
+            font-size: 9px;
+
+            line-height: 1.4;
+        }
+
+        .validation-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2,1fr);
+
+            gap: 8px;
+        }
+
+        .validation-card {
+
+            padding: 11px;
+
+            background: #091724;
+
+            border:
+                1px solid #1c374c;
+
+            border-radius: 8px;
+        }
+
+        .validation-label {
+
+            color: #71879c;
+
+            font-size: 9px;
+
+            text-transform: uppercase;
+        }
+
+        .validation-value {
+
+            margin-top: 5px;
+
+            color: #dff4ff;
+
+            font-size: 16px;
+
+            font-weight: 800;
+        }
+
+        .validation-wide {
+
+            grid-column:
+                span 2;
+        }
+
+        .validation-footer {
+
+            margin-top: 12px;
+
+            padding-top: 10px;
+
+            border-top:
+                1px solid #173044;
+
+            color: #647c8f;
+
+            font-size: 9px;
+
+            line-height: 1.5;
+        }
+
+
+        /* =====================================================
+           ALERT
+        ====================================================== */
+
+        .alert-content {
+
+            padding: 17px;
+        }
+
+        .alert-card {
+
+            padding: 13px;
+
+            background: #211817;
+
+            border:
+                1px solid #573a32;
+
+            border-radius: 8px;
+        }
+
+        .alert-title {
+
+            color: #ff9b8e;
+
+            font-size: 12px;
+
+            font-weight: 800;
+        }
+
+        .alert-message {
+
+            margin-top: 7px;
+
+            color: #bdaba7;
+
+            font-size: 11px;
+
+            line-height: 1.5;
+        }
+
+        .alert-demo {
+
+            margin-top: 10px;
+
+            color: #8c756f;
+
+            font-size: 9px;
+
+            text-transform: uppercase;
+        }
+
+
+        /* =====================================================
+           STATUS
+        ====================================================== */
+
+        .data-status {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items: center;
+
+            gap: 15px;
+
+            margin-top: 18px;
+
+            padding:
+                12px 15px;
+
+            background: #091624;
+
+            border:
+                1px solid #1a3044;
+
+            border-radius: 9px;
+
+            color: #71879c;
+
+            font-size: 10px;
+        }
+
+
+        /* =====================================================
+           LEAFLET
+        ====================================================== */
+
+        .leaflet-popup-content-wrapper {
+
+            background: #0b1929;
+
+            color: #dbe8f2;
+
+            border:
+                1px solid #2c4d65;
+        }
+
+        .leaflet-popup-tip {
+
+            background: #0b1929;
+        }
+
+        .leaflet-popup-content {
+
+            font-size: 11px;
+
+            line-height: 1.65;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ====================================================== */
+
+        @media(max-width: 1100px) {
+
+            .kpi-grid {
+
+                grid-template-columns:
+                    repeat(2,1fr);
+            }
+
+            .main-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+            .bottom-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+        }
+
+        @media(max-width: 700px) {
+
+            header {
+
+                padding:
+                    0 14px;
+            }
+
+            main {
+
+                padding:
+                    15px;
+            }
+
+            .brand-subtitle,
+            .problem-id {
+
+                display: none;
+            }
+
+            .kpi-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+            #map {
+
+                height: 430px;
+            }
+
+            .map-legend {
+
+                display: none;
+            }
+
+            .map-info-bar {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+            .comparison {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+            .validation-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+            .validation-wide {
+
+                grid-column:
+                    span 1;
+            }
+
+            .basemap-group {
+
+                width: 100%;
+
+                justify-content:
+                    space-between;
+
+            }
+
+            .basemap-label {
+
+                padding-left: 2px;
+
+            }
+
+            .data-status {
+
+                flex-direction:
+                    column;
+
+                align-items:
+                    flex-start;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="app">
+
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header>
+
+        <div class="brand">
+
+            <div class="brand-mark">
+                S
+            </div>
+
+            <div>
+
+                <div class="brand-title">
+                    STORMIS
+                </div>
+
+                <div class="brand-subtitle">
+                    Spatio-Temporal Observation &amp;
+                    Risk Monitoring Intelligence System
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="header-right">
+
+            <div class="problem-id">
+                SIH26078
+            </div>
+
+            <div class="demo-badge">
+                DEMO / PROTOTYPE
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <main>
+
+
+        <!-- =================================================
+             KPI
+        ================================================== -->
+
+        <section class="kpi-grid">
+
+
+            <div class="kpi">
+
+                <div class="kpi-label">
+                    Active Events
+                </div>
+
+                <div
+                    class="kpi-value"
+                    id="activeEvents"
+                >
+                    0
+                </div>
+
+                <div class="kpi-small">
+                    Prototype detected events
+                </div>
+
+            </div>
+
+
+            <div class="kpi">
+
+                <div class="kpi-label">
+                    Highest Severity
+                </div>
+
+                <div
+                    class="kpi-value"
+                    id="highestSeverity"
+                >
+                    —
+                </div>
+
+                <div class="kpi-small">
+                    Current forecast
+                </div>
+
+            </div>
+
+
+            <div class="kpi">
+
+                <div class="kpi-label">
+                    Resolution
+                </div>
+
+                <div
+                    class="kpi-value"
+                    id="resolution"
+                >
+                    12 → 5 km
+                </div>
+
+                <div class="kpi-small">
+                    Prototype refinement
+                </div>
+
+            </div>
+
+
+            <div class="kpi">
+
+                <div class="kpi-label">
+                    Backend
+                </div>
+
+                <div
+                    class="kpi-value online"
+                    id="backendStatus"
+                >
+                    ONLINE
+                </div>
+
+                <div class="kpi-small">
+                    FastAPI
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =================================================
+             MAIN
+        ================================================== -->
+
+        <section class="main-grid">
+
+
+            <!-- =================================================
+                 MAP
+            ================================================== -->
+
+            <div class="panel">
+
+
+                <div class="panel-header">
+
+                    <div class="panel-title">
+                        INDIA — EXTREME WEATHER FIELD
+                    </div>
+
+                    <div class="panel-tag">
+                        DETECT • TRACK • LOCALIZE
+                    </div>
+
+                </div>
+
+
+                <div class="map-wrapper">
+
+
+                    <div
+                        class="map-status"
+                        id="mapStatus"
+                    >
+                        Awaiting analysis
+                    </div>
+
+
+                    <div
+                        class="map-time"
+                        id="mapTime"
+                    >
+                        FORECAST: —
+                    </div>
+
+
+                    <div id="map"></div>
+
+
+                    <div class="map-legend">
+
+                        <div class="legend-title">
+                            SPATIAL INTERPRETATION
+                        </div>
+
+
+                        <div class="legend-row">
+
+                            <div
+                                class="legend-box legend-12km"
+                            ></div>
+
+                            12 km forecast cell
+
+                        </div>
+
+
+                        <div class="legend-row">
+
+                            <div
+                                class="legend-hotspot"
+                            ></div>
+
+                            Extreme anomaly / hotspot
+
+                        </div>
+
+
+                        <div class="legend-row">
+
+                            <div
+                                class="legend-box legend-area"
+                            ></div>
+
+                            Affected area
+
+                        </div>
+
+
+                        <div class="legend-row">
+
+                            <div
+                                class="legend-box legend-5km"
+                            ></div>
+
+                            5 km refined grid
+
+                        </div>
+
+
+                        <div class="legend-row">
+
+                            <div
+                                class="legend-line"
+                            ></div>
+
+                            Event trajectory
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="map-info-bar">
+
+
+                    <div class="map-info-item">
+
+                        <div class="map-info-label">
+                            Coarse Input
+                        </div>
+
+                        <div class="map-info-value">
+                            12 KM FORECAST GRID
+                        </div>
+
+                    </div>
+
+
+                    <div class="map-info-item">
+
+                        <div class="map-info-label">
+                            Detected Region
+                        </div>
+
+                        <div
+                            class="map-info-value"
+                            id="mapAffectedLabel"
+                        >
+                            AFFECTED AREA: —
+                        </div>
+
+                    </div>
+
+
+                    <div class="map-info-item">
+
+                        <div class="map-info-label">
+                            Refined Output
+                        </div>
+
+                        <div class="map-info-value">
+                            5 KM PROTOTYPE GRID
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="map-controls">
+
+
+                    <div class="basemap-group">
+
+                        <span class="basemap-label">
+                            MAP
+                        </span>
+
+                        <button
+                            class="base-map-button active"
+                            id="baseStreet"
+                            onclick="setBaseMap('street')"
+                        >
+                            STREET
+                        </button>
+
+                        <button
+                            class="base-map-button"
+                            id="baseSatellite"
+                            onclick="setBaseMap('satellite')"
+                        >
+                            SATELLITE
+                        </button>
+
+                        <button
+                            class="base-map-button"
+                            id="baseHybrid"
+                            onclick="setBaseMap('hybrid')"
+                        >
+                            HYBRID
+                        </button>
+
+                    </div>
+
+
+                    <button
+                        class="map-control active"
+                        id="toggleGrid"
+                        onclick="toggleLayer('grid')"
+                    >
+                        SHOW 12 KM GRID
+                    </button>
+
+
+                    <button
+                        class="map-control active"
+                        id="toggleAnomaly"
+                        onclick="toggleLayer('anomaly')"
+                    >
+                        SHOW ANOMALIES
+                    </button>
+
+
+                    <button
+                        class="map-control active"
+                        id="toggleTrajectory"
+                        onclick="toggleLayer('trajectory')"
+                    >
+                        SHOW TRAJECTORY
+                    </button>
+
+
+                    <button
+                        class="map-control active"
+                        id="toggleArea"
+                        onclick="toggleLayer('area')"
+                    >
+                        SHOW AFFECTED AREA
+                    </button>
+
+
+                    <button
+                        class="map-control active"
+                        id="toggleDownscale"
+                        onclick="toggleLayer('downscale')"
+                    >
+                        SHOW 5 KM GRID
+                    </button>
+
+
+                </div>
+
+
+            </div>
+
+
+            <!-- =================================================
+                 RIGHT SIDE
+            ================================================== -->
+
+            <div>
+
+
+                <!-- EVENT -->
+
+                <div class="panel">
+
+
+                    <div class="panel-header">
+
+                        <div class="panel-title">
+                            SELECTED EVENT
+                        </div>
+
+                        <div
+                            class="panel-tag"
+                            id="selectedEventTag"
+                        >
+                            EVT-001
+                        </div>
+
+                    </div>
+
+
+                    <div class="event-content">
+
+
+                        <div
+                            class="event-id"
+                            id="eventId"
+                        >
+                            EVENT ID: —
+                        </div>
+
+
+                        <div
+                            class="event-name"
+                            id="eventName"
+                        >
+                            Awaiting Analysis
+                        </div>
+
+
+                        <div
+                            class="severity"
+                            id="severity"
+                        >
+                            NO EVENT
+                        </div>
+
+
+                        <div class="event-details">
+
+
+                            <div class="detail-row">
+
+                                <div class="detail-label">
+                                    Forecast Time
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="forecastTime"
+                                >
+                                    —
+                                </div>
+
+                            </div>
+
+
+                            <div class="detail-row">
+
+                                <div class="detail-label">
+                                    Location
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="location"
+                                >
+                                    —
+                                </div>
+
+                            </div>
+
+
+                            <div class="detail-row">
+
+                                <div class="detail-label">
+                                    Anomaly
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="anomaly"
+                                >
+                                    —
+                                </div>
+
+                            </div>
+
+
+                            <div class="detail-row">
+
+                                <div class="detail-label">
+                                    Movement
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="movement"
+                                >
+                                    —
+                                </div>
+
+                            </div>
+
+
+                            <div class="detail-row">
+
+                                <div class="detail-label">
+                                    Risk
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="risk"
+                                >
+                                    —
+                                </div>
+
+                            </div>
+
+
+                            <div class="detail-row">
+
+                                <div class="detail-label">
+                                    Affected Cells
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="affectedCells"
+                                >
+                                    —
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+
+                        <button
+                            class="run-button"
+                            id="runButton"
+                            onclick="runAnalysis()"
+                        >
+                            RUN EXTREME EVENT ANALYSIS
+                        </button>
+
+
+                    </div>
+
+                </div>
+
+
+                <!-- PIPELINE -->
+
+                <div class="panel pipeline">
+
+
+                    <div class="panel-header">
+
+                        <div class="panel-title">
+                            ANALYSIS PIPELINE
+                        </div>
+
+                        <div
+                            class="panel-tag"
+                            id="pipelineStatus"
+                        >
+                            READY
+                        </div>
+
+                    </div>
+
+
+                    <div class="pipeline-list">
+
+
+                        <div
+                            class="pipeline-step"
+                            id="stepForecast"
+                        >
+
+                            <div class="pipeline-dot"></div>
+
+                            <div class="pipeline-name">
+                                Forecast Field
+                            </div>
+
+                            <div
+                                class="pipeline-status"
+                                id="statusForecast"
+                            >
+                                WAITING
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            class="pipeline-step"
+                            id="stepAnomaly"
+                        >
+
+                            <div class="pipeline-dot"></div>
+
+                            <div class="pipeline-name">
+                                Anomaly Detection
+                            </div>
+
+                            <div
+                                class="pipeline-status"
+                                id="statusAnomaly"
+                            >
+                                WAITING
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            class="pipeline-step"
+                            id="stepTracking"
+                        >
+
+                            <div class="pipeline-dot"></div>
+
+                            <div class="pipeline-name">
+                                Event Tracking
+                            </div>
+
+                            <div
+                                class="pipeline-status"
+                                id="statusTracking"
+                            >
+                                WAITING
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            class="pipeline-step"
+                            id="stepDownscale"
+                        >
+
+                            <div class="pipeline-dot"></div>
+
+                            <div class="pipeline-name">
+                                12 → 5 km Downscaling
+                            </div>
+
+                            <div
+                                class="pipeline-status"
+                                id="statusDownscale"
+                            >
+                                WAITING
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            class="pipeline-step"
+                            id="stepRisk"
+                        >
+
+                            <div class="pipeline-dot"></div>
+
+                            <div class="pipeline-name">
+                                Risk Assessment
+                            </div>
+
+                            <div
+                                class="pipeline-status"
+                                id="statusRisk"
+                            >
+                                WAITING
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            class="pipeline-step"
+                            id="stepAlert"
+                        >
+
+                            <div class="pipeline-dot"></div>
+
+                            <div class="pipeline-name">
+                                Alert Generation
+                            </div>
+
+                            <div
+                                class="pipeline-status"
+                                id="statusAlert"
+                            >
+                                WAITING
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =================================================
+             BOTTOM
+        ================================================== -->
+
+        <section class="bottom-grid">
+
+
+            <!-- TIMELINE -->
+
+            <div class="panel">
+
+
+                <div class="panel-header">
+
+                    <div class="panel-title">
+                        FORECAST TIMELINE
+                    </div>
+
+                    <div class="panel-tag">
+                        SPATIO-TEMPORAL TRACK
+                    </div>
+
+                </div>
+
+
+                <div class="timeline">
+
+
+                    <div class="timeline-track">
+
+
+                        <div
+                            class="timeline-point"
+                            id="t24"
+                            onclick="selectForecastTime(0)"
+                            title="View T+24"
+                        ></div>
+
+
+                        <div class="timeline-line"></div>
+
+
+                        <div
+                            class="timeline-point"
+                            id="t48"
+                            onclick="selectForecastTime(1)"
+                            title="View T+48"
+                        ></div>
+
+
+                        <div class="timeline-line"></div>
+
+
+                        <div
+                            class="timeline-point"
+                            id="t72"
+                            onclick="selectForecastTime(2)"
+                            title="View T+72"
+                        ></div>
+
+
+                        <div class="timeline-line"></div>
+
+
+                        <div
+                            class="timeline-point"
+                            id="t96"
+                            onclick="selectForecastTime(3)"
+                            title="View T+96"
+                        ></div>
+
+
+                    </div>
+
+
+                    <div class="timeline-labels">
+
+                        <span>T+24</span>
+                        <span>T+48</span>
+                        <span>T+72</span>
+                        <span>T+96</span>
+
+                    </div>
+
+
+                    <div
+                        class="timeline-location-row"
+                        id="timelineLocations"
+                    >
+
+                        <span>—</span>
+                        <span>—</span>
+                        <span>—</span>
+                        <span>—</span>
+
+                    </div>
+
+
+                    <div
+                        class="timeline-hint"
+                        id="timelineHint"
+                    >
+                        Run analysis, then click any forecast
+                        point to inspect the event at that time.
+                    </div>
+
+
+                    <div class="trend-area">
+
+
+                        <div class="trend-header">
+
+                            <span>
+                                ANOMALY INTENSITY TREND
+                            </span>
+
+                            <span
+                                class="trend-value"
+                                id="trendValue"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            class="trend-bars"
+                            id="trendBars"
+                        >
+
+                            <div
+                                class="trend-bar"
+                                style="height:10%"
+                            ></div>
+
+                            <div
+                                class="trend-bar"
+                                style="height:10%"
+                            ></div>
+
+                            <div
+                                class="trend-bar"
+                                style="height:10%"
+                            ></div>
+
+                            <div
+                                class="trend-bar"
+                                style="height:10%"
+                            ></div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- RESOLUTION -->
+
+            <div class="panel">
+
+
+                <div class="panel-header">
+
+                    <div class="panel-title">
+                        RESOLUTION REFINEMENT
+                    </div>
+
+                    <div class="panel-tag">
+                        PROTOTYPE
+                    </div>
+
+                </div>
+
+
+                <div class="comparison">
+
+
+                    <!-- 12 KM -->
+
+                    <div>
+
+                        <div class="grid-title">
+                            12 KM INPUT
+                        </div>
+
+                        <div class="grid-subtitle">
+                            COARSE FORECAST CELL
+                        </div>
+
+
+                        <div
+                            class="mini-grid"
+                            id="coarseGrid"
+                        >
+
+                            <div class="mini-cell"></div>
+                            <div class="mini-cell"></div>
+                            <div class="mini-cell"></div>
+
+                            <div class="mini-cell"></div>
+
+                            <div class="mini-cell hot">
+                                ●
+                            </div>
+
+                            <div class="mini-cell"></div>
+
+                            <div class="mini-cell"></div>
+                            <div class="mini-cell"></div>
+                            <div class="mini-cell"></div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- 5 KM -->
+
+                    <div>
+
+                        <div class="grid-title">
+                            5 KM OUTPUT
+                        </div>
+
+                        <div class="grid-subtitle">
+                            FINER PROTOTYPE REPRESENTATION
+                        </div>
+
+
+                        <div
+                            class="mini-grid fine"
+                            id="fineGrid"
+                        >
+
+                            <div class="mini-cell">
+                                —
+                            </div>
+
+                            <div class="mini-cell hot">
+                                —
+                            </div>
+
+                            <div class="mini-cell">
+                                —
+                            </div>
+
+                            <div class="mini-cell">
+                                —
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="refinement-stats">
+
+
+                    <div class="ref-stat">
+
+                        <div class="ref-stat-label">
+                            METHOD
+                        </div>
+
+                        <div
+                            class="ref-stat-value"
+                            id="refMethod"
+                        >
+                            Prototype
+                        </div>
+
+                    </div>
+
+
+                    <div class="ref-stat">
+
+                        <div class="ref-stat-label">
+                            PEAK
+                        </div>
+
+                        <div
+                            class="ref-stat-value"
+                            id="refPeak"
+                        >
+                            —
+                        </div>
+
+                    </div>
+
+
+                    <div class="ref-stat">
+
+                        <div class="ref-stat-label">
+                            MEAN
+                        </div>
+
+                        <div
+                            class="ref-stat-value"
+                            id="refMean"
+                        >
+                            —
+                        </div>
+
+                    </div>
+
+
+                    <div class="ref-stat">
+
+                        <div class="ref-stat-label">
+                            STATUS
+                        </div>
+
+                        <div
+                            class="ref-stat-value"
+                            id="refStatus"
+                        >
+                            WAITING
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+            <!-- VALIDATION -->
+
+            <div class="panel">
+
+
+                <div class="panel-header">
+
+                    <div class="panel-title">
+                        MODEL / PROTOTYPE VALIDATION
+                    </div>
+
+                    <div
+                        class="panel-tag"
+                        id="validationTimeTag"
+                    >
+                        —
+                    </div>
+
+                </div>
+
+
+                <div class="validation-body">
+
+
+                    <div class="validation-banner">
+
+                        DEMO / SIMULATED VALIDATION
+
+                    </div>
+
+
+                    <div
+                        class="validation-reference"
+                        id="validationReference"
+                    >
+                        Reference:
+                        Waiting for analysis
+                    </div>
+
+
+                    <div class="validation-grid">
+
+
+                        <div class="validation-card">
+
+                            <div class="validation-label">
+                                MAE
+                            </div>
+
+                            <div
+                                class="validation-value"
+                                id="validationMAE"
+                            >
+                                —
+                            </div>
+
+                        </div>
+
+
+                        <div class="validation-card">
+
+                            <div class="validation-label">
+                                RMSE
+                            </div>
+
+                            <div
+                                class="validation-value"
+                                id="validationRMSE"
+                            >
+                                —
+                            </div>
+
+                        </div>
+
+
+                        <div class="validation-card">
+
+                            <div class="validation-label">
+                                Correlation
+                            </div>
+
+                            <div
+                                class="validation-value"
+                                id="validationCorrelation"
+                            >
+                                —
+                            </div>
+
+                        </div>
+
+
+                        <div class="validation-card">
+
+                            <div class="validation-label">
+                                Peak Error
+                            </div>
+
+                            <div
+                                class="validation-value"
+                                id="validationPeak"
+                            >
+                                —
+                            </div>
+
+                        </div>
+
+
+                        <div class="validation-card validation-wide">
+
+                            <div class="validation-label">
+                                Spatial Overlap
+                            </div>
+
+                            <div
+                                class="validation-value"
+                                id="validationOverlap"
+                            >
+                                —
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="validation-footer">
+
+                        These metrics use a simulated reference
+                        field for prototype workflow demonstration.
+                        They are not real-world forecast accuracy
+                        results.
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+            <!-- ALERT -->
+
+            <div class="panel">
+
+
+                <div class="panel-header">
+
+                    <div class="panel-title">
+                        ALERT FEED
+                    </div>
+
+                    <div class="panel-tag">
+                        PROTOTYPE
+                    </div>
+
+                </div>
+
+
+                <div class="alert-content">
+
+
+                    <div
+                        class="alert-card"
+                        id="alertCard"
+                    >
+
+                        <div
+                            class="alert-title"
+                            id="alertTitle"
+                        >
+                            SYSTEM READY
+                        </div>
+
+
+                        <div
+                            class="alert-message"
+                            id="alertMessage"
+                        >
+                            Run the extreme event analysis
+                            to generate a prototype alert.
+                        </div>
+
+
+                        <div class="alert-demo">
+                            DEMO DATA / SIMULATED FORECAST
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- STATUS -->
+
+        <div class="data-status">
+
+            <div>
+
+                DATA SOURCE:
+
+                <strong>
+                    SIMULATED DEMO
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                REAL FORECAST:
+
+                <strong>
+                    NOT CONNECTED
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                BACKEND:
+
+                <strong
+                    id="dataBackend"
+                    class="online"
+                >
+                    ONLINE
+                </strong>
+
+            </div>
+
+        </div>
+
+
+    </main>
+
+</div>
+
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+
+<script>
+
+    /* =========================================================
+       CONFIG
+    ========================================================== */
+
+    const API_BASE =
+        "http://127.0.0.1:8000";
+
+
+    /* =========================================================
+       MAP
+    ========================================================== */
+
+    const map =
+        L.map("map").setView(
+            [22.5, 79.0],
+            5
+        );
+
+
+    /* =========================================================
+       BASEMAPS
+    ========================================================== */
+
+    const streetLayer =
+        L.tileLayer(
+            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            {
+
+                maxZoom:
+                    18,
+
+                attribution:
+                    "&copy; OpenStreetMap contributors"
+
+            }
+        );
+
+
+    const satelliteLayer =
+        L.tileLayer(
+            "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            {
+
+                maxZoom:
+                    18,
+
+                attribution:
+                    "Imagery &copy; Esri"
+
+            }
+        );
+
+
+    const satelliteLabelsLayer =
+        L.tileLayer(
+            "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+            {
+
+                maxZoom:
+                    18,
+
+                opacity:
+                    0.95,
+
+                attribution:
+                    "Labels &copy; Esri"
+
+            }
+        );
+
+
+    let activeBaseMap =
+        "street";
+
+
+    streetLayer.addTo(
+        map
+    );
+
+
+    function setBaseMap(
+        mode
+    ) {
+
+        activeBaseMap =
+            mode;
+
+
+        /* -----------------------------------------------------
+           Remove all basemap layers first
+        ------------------------------------------------------ */
+
+        if (
+            map.hasLayer(
+                streetLayer
+            )
+        ) {
+
+            map.removeLayer(
+                streetLayer
+            );
+
+        }
+
+
+        if (
+            map.hasLayer(
+                satelliteLayer
+            )
+        ) {
+
+            map.removeLayer(
+                satelliteLayer
+            );
+
+        }
+
+
+        if (
+            map.hasLayer(
+                satelliteLabelsLayer
+            )
+        ) {
+
+            map.removeLayer(
+                satelliteLabelsLayer
+            );
+
+        }
+
+
+        /* -----------------------------------------------------
+           Add selected basemap
+        ------------------------------------------------------ */
+
+        if (
+            mode ===
+            "satellite"
+        ) {
+
+            satelliteLayer.addTo(
+                map
+            );
+
+        } else if (
+            mode ===
+            "hybrid"
+        ) {
+
+            satelliteLayer.addTo(
+                map
+            );
+
+            satelliteLabelsLayer.addTo(
+                map
+            );
+
+        } else {
+
+            streetLayer.addTo(
+                map
+            );
+
+            activeBaseMap =
+                "street";
+
+        }
+
+
+        /* -----------------------------------------------------
+           Update control state
+        ------------------------------------------------------ */
+
+        const buttons = {
+
+            street:
+                document.getElementById(
+                    "baseStreet"
+                ),
+
+            satellite:
+                document.getElementById(
+                    "baseSatellite"
+                ),
+
+            hybrid:
+                document.getElementById(
+                    "baseHybrid"
+                )
+
+        };
+
+
+        Object.keys(
+            buttons
+        ).forEach(
+            key => {
+
+                buttons[key].classList.toggle(
+                    "active",
+                    key === mode
+                );
+
+            }
+        );
+
+
+        /* -----------------------------------------------------
+           Update status without changing
+           the forecast horizon.
+        ------------------------------------------------------ */
+
+        const names = {
+
+            street:
+                "Street Map",
+
+            satellite:
+                "Satellite View",
+
+            hybrid:
+                "Satellite + Labels"
+
+        };
+
+
+        const currentForecast =
+            document.getElementById(
+                "mapTime"
+            ).textContent;
+
+
+        setMapStatus(
+
+            `${names[mode]} active`,
+
+            currentForecast.startsWith(
+                "FORECAST:"
+            )
+                ? currentForecast
+                    .replace(
+                        "FORECAST:",
+                        ""
+                    )
+                    .trim()
+                : null
+
+        );
+
+    }
+
+
+    /* =========================================================
+       MAP LAYERS
+    ========================================================== */
+
+    const forecastGridLayer =
+        L.layerGroup().addTo(map);
+
+
+    const anomalyLayer =
+        L.layerGroup().addTo(map);
+
+
+    const affectedAreaLayer =
+        L.layerGroup().addTo(map);
+
+
+    const downscaledLayer =
+        L.layerGroup().addTo(map);
+
+
+    let trajectoryLine =
+        null;
+
+
+    let eventMarkers =
+        [];
+
+
+    let eventCircle =
+        null;
+
+
+    let currentMapData =
+        null;
+
+
+    let currentValidation =
+        null;
+
+
+    let selectedForecastIndex =
+        -1;
+
+
+    let areaLabel =
+        null;
+
+
+    let twelveKmLabel =
+        null;
+
+
+    let fiveKmLabel =
+        null;
+
+
+    /* =========================================================
+       LAYER STATE
+    ========================================================== */
+
+    const layerState = {
+
+        grid:
+            true,
+
+        anomaly:
+            true,
+
+        trajectory:
+            true,
+
+        area:
+            true,
+
+        downscale:
+            true
+
+    };
+
+
+    /* =========================================================
+       TOGGLE LAYER
+    ========================================================== */
+
+    function toggleLayer(
+        layerName
+    ) {
+
+        layerState[layerName] =
+            !layerState[layerName];
+
+
+        const ids = {
+
+            grid:
+                "toggleGrid",
+
+            anomaly:
+                "toggleAnomaly",
+
+            trajectory:
+                "toggleTrajectory",
+
+            area:
+                "toggleArea",
+
+            downscale:
+                "toggleDownscale"
+
+        };
+
+
+        const button =
+            document.getElementById(
+                ids[layerName]
+            );
+
+
+        if (button) {
+
+            button.classList.toggle(
+                "active",
+                layerState[layerName]
+            );
+
+        }
+
+
+        if (
+            layerName ===
+            "trajectory"
+        ) {
+
+            refreshTrajectoryVisibility();
+
+            return;
+
+        }
+
+
+        const layers = {
+
+            grid:
+                forecastGridLayer,
+
+            anomaly:
+                anomalyLayer,
+
+            area:
+                affectedAreaLayer,
+
+            downscale:
+                downscaledLayer
+
+        };
+
+
+        const layer =
+            layers[layerName];
+
+
+        if (!layer) {
+
+            return;
+
+        }
+
+
+        if (
+            layerState[layerName]
+        ) {
+
+            layer.addTo(
+                map
+            );
+
+        } else {
+
+            map.removeLayer(
+                layer
+            );
+
+        }
+
+    }
+
+
+    /* =========================================================
+       BACKEND HEALTH
+    ========================================================== */
+
+    async function checkBackend() {
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_BASE}/api/health`
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Backend unavailable"
+                );
+
+            }
+
+
+            await response.json();
+
+
+            document.getElementById(
+                "backendStatus"
+            ).textContent =
+                "ONLINE";
+
+
+            document.getElementById(
+                "dataBackend"
+            ).textContent =
+                "ONLINE";
+
+
+        } catch (error) {
+
+            document.getElementById(
+                "backendStatus"
+            ).textContent =
+                "OFFLINE";
+
+
+            document.getElementById(
+                "dataBackend"
+            ).textContent =
+                "OFFLINE";
+
+
+            console.error(
+                "STORMIS backend:",
+                error
+            );
+
+        }
+
+    }
+
+
+    /* =========================================================
+       PIPELINE
+    ========================================================== */
+
+    function setPipeline(
+        activeStep,
+        completedSteps = []
+    ) {
+
+        const steps = [
+
+            "Forecast",
+
+            "Anomaly",
+
+            "Tracking",
+
+            "Downscale",
+
+            "Risk",
+
+            "Alert"
+
+        ];
+
+
+        steps.forEach(
+            step => {
+
+                const container =
+                    document.getElementById(
+                        "step" + step
+                    );
+
+
+                if (!container) {
+
+                    return;
+
+                }
+
+
+                const dot =
+                    container.querySelector(
+                        ".pipeline-dot"
+                    );
+
+
+                const status =
+                    document.getElementById(
+                        "status" + step
+                    );
+
+
+                const normalized =
+                    step.toLowerCase();
+
+
+                dot.classList.remove(
+                    "active",
+                    "done"
+                );
+
+
+                if (
+                    completedSteps.includes(
+                        normalized
+                    )
+                ) {
+
+                    dot.classList.add(
+                        "done"
+                    );
+
+
+                    status.textContent =
+                        "COMPLETE";
+
+
+                } else if (
+                    activeStep ===
+                    normalized
+                ) {
+
+                    dot.classList.add(
+                        "active"
+                    );
+
+
+                    status.textContent =
+                        "RUNNING";
+
+
+                } else {
+
+                    status.textContent =
+                        "WAITING";
+
+                }
+
+            }
+        );
+
+
+        document.getElementById(
+            "pipelineStatus"
+        ).textContent =
+
+            activeStep
+                ? activeStep.toUpperCase()
+                : "READY";
+
+    }
+
+
+    /* =========================================================
+       WAIT
+    ========================================================== */
+
+    function wait(
+        milliseconds
+    ) {
+
+        return new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    milliseconds
+                )
+        );
+
+    }
+
+
+    /* =========================================================
+       MAP STATUS
+    ========================================================== */
+
+    function setMapStatus(
+        message,
+        forecastTime = null
+    ) {
+
+        document.getElementById(
+            "mapStatus"
+        ).textContent =
+            message;
+
+
+        document.getElementById(
+            "mapTime"
+        ).textContent =
+
+            forecastTime
+
+                ? `FORECAST: ${forecastTime}`
+
+                : "FORECAST: —";
+
+    }
+
+
+    /* =========================================================
+       CLEAR MAP
+    ========================================================== */
+
+    function clearMapData() {
+
+        forecastGridLayer.clearLayers();
+
+        anomalyLayer.clearLayers();
+
+        affectedAreaLayer.clearLayers();
+
+        downscaledLayer.clearLayers();
+
+
+        if (
+            trajectoryLine
+        ) {
+
+            map.removeLayer(
+                trajectoryLine
+            );
+
+            trajectoryLine =
+                null;
+
+        }
+
+
+        eventMarkers.forEach(
+            marker => {
+
+                map.removeLayer(
+                    marker
+                );
+
+            }
+        );
+
+
+        eventMarkers = [];
+
+
+        if (
+            eventCircle
+        ) {
+
+            map.removeLayer(
+                eventCircle
+            );
+
+            eventCircle =
+                null;
+
+        }
+
+
+        if (
+            areaLabel
+        ) {
+
+            map.removeLayer(
+                areaLabel
+            );
+
+            areaLabel =
+                null;
+
+        }
+
+
+        if (
+            twelveKmLabel
+        ) {
+
+            map.removeLayer(
+                twelveKmLabel
+            );
+
+            twelveKmLabel =
+                null;
+
+        }
+
+
+        if (
+            fiveKmLabel
+        ) {
+
+            map.removeLayer(
+                fiveKmLabel
+            );
+
+            fiveKmLabel =
+                null;
+
+        }
+
+    }
+
+
+    /* =========================================================
+       12 KM CELL STYLE
+    ========================================================== */
+
+    function getCellStyle() {
+
+        return {
+
+            color:
+                "#4ea4d0",
+
+            fillColor:
+                "#2b668f",
+
+            fillOpacity:
+                0.025,
+
+            weight:
+                2.5
+
+        };
+
+    }
+
+
+    /* =========================================================
+       MAP LABEL
+    ========================================================== */
+
+    function createMapLabel(
+        latitude,
+        longitude,
+        text,
+        className
+    ) {
+
+        return L.marker(
+
+            [
+                latitude,
+                longitude
+            ],
+
+            {
+
+                icon:
+                    L.divIcon({
+
+                        className:
+                            `map-label ${className}`,
+
+                        html:
+                            `<span>${text}</span>`,
+
+                        iconSize:
+                            null,
+
+                        iconAnchor:
+                            [0,0]
+
+                    }),
+
+                interactive:
+                    false
+
+            }
+
+        ).addTo(map);
+
+    }
+
+
+    /* =========================================================
+       12 KM FORECAST FIELD
+    ========================================================== */
+
+    function renderForecastStep(
+        step
+    ) {
+
+        forecastGridLayer.clearLayers();
+
+        anomalyLayer.clearLayers();
+
+        affectedAreaLayer.clearLayers();
+
+
+        if (
+            !step ||
+            !step.cells
+        ) {
+
+            return;
+
+        }
+
+
+        const extremeCells =
+            step.cells.filter(
+                cell =>
+                    cell.is_extreme
+            );
+
+
+        step.cells.forEach(
+            cell => {
+
+                const lat =
+                    Number(
+                        cell.latitude
+                    );
+
+
+                const lon =
+                    Number(
+                        cell.longitude
+                    );
+
+
+                const halfLat =
+                    0.054;
+
+
+                const halfLon =
+                    0.06 /
+                    Math.cos(
+                        lat *
+                        Math.PI /
+                        180
+                    );
+
+
+                const rectangle =
+                    L.rectangle(
+
+                        [
+
+                            [
+                                lat - halfLat,
+                                lon - halfLon
+                            ],
+
+                            [
+                                lat + halfLat,
+                                lon + halfLon
+                            ]
+
+                        ],
+
+                        getCellStyle()
+
+                    );
+
+
+                rectangle.bindPopup(
+
+                    `
+                    <strong>
+                        12 KM FORECAST CELL
+                    </strong>
+
+                    <br><br>
+
+                    Forecast:
+                    ${step.forecast_time}
+
+                    <br>
+
+                    Latitude:
+                    ${lat.toFixed(3)}°
+
+                    <br>
+
+                    Longitude:
+                    ${lon.toFixed(3)}°
+
+                    <br>
+
+                    Rainfall:
+                    ${Number(
+                        cell.rainfall
+                    ).toFixed(1)} mm
+
+                    <br>
+
+                    Baseline:
+                    ${Number(
+                        cell.baseline_rainfall
+                    ).toFixed(1)} mm
+
+                    <br>
+
+                    Anomaly:
+                    ${Number(
+                        cell.anomaly_score
+                    ).toFixed(3)}
+
+                    <br>
+
+                    Severity:
+                    ${cell.severity}
+                    `
+
+                );
+
+
+                if (
+                    layerState.grid
+                ) {
+
+                    forecastGridLayer.addLayer(
+                        rectangle
+                    );
+
+                }
+
+            }
+        );
+
+
+        /* =====================================================
+           EXTREME HOTSPOT
+        ====================================================== */
+
+        extremeCells.forEach(
+            cell => {
+
+                const hotspot =
+                    L.circle(
+
+                        [
+                            cell.latitude,
+                            cell.longitude
+                        ],
+
+                        {
+
+                            radius:
+                                14000,
+
+                            color:
+                                "#ffb5aa",
+
+                            weight:
+                                3,
+
+                            fillColor:
+                                "#e94d3d",
+
+                            fillOpacity:
+                                .16,
+
+                            dashArray:
+                                "3 3"
+
+                        }
+
+                    );
+
+
+                hotspot.bindPopup(
+
+                    `
+                    <strong>
+                        EXTREME ANOMALY HOTSPOT
+                    </strong>
+
+                    <br><br>
+
+                    Forecast:
+                    ${step.forecast_time}
+
+                    <br>
+
+                    Rainfall:
+                    ${Number(
+                        cell.rainfall
+                    ).toFixed(1)} mm
+
+                    <br>
+
+                    Anomaly:
+                    ${Number(
+                        cell.anomaly_score
+                    ).toFixed(3)}
+
+                    <br>
+
+                    Severity:
+                    ${cell.severity}
+                    `
+
+                );
+
+
+                if (
+                    layerState.anomaly
+                ) {
+
+                    anomalyLayer.addLayer(
+                        hotspot
+                    );
+
+                }
+
+            }
+        );
+
+
+        /* =====================================================
+           12 KM LABEL
+        ====================================================== */
+
+        if (
+            twelveKmLabel
+        ) {
+
+            map.removeLayer(
+                twelveKmLabel
+            );
+
+            twelveKmLabel =
+                null;
+
+        }
+
+
+        if (
+            extremeCells.length
+        ) {
+
+            const strongest =
+                [...extremeCells].sort(
+
+                    (
+                        a,
+                        b
+                    ) =>
+
+                        Number(
+                            b.anomaly_score
+                        )
+
+                        -
+
+                        Number(
+                            a.anomaly_score
+                        )
+
+                )[0];
+
+
+            twelveKmLabel =
+                createMapLabel(
+
+                    Number(
+                        strongest.latitude
+                    ) +
+                    0.085,
+
+                    Number(
+                        strongest.longitude
+                    ) -
+                    0.075,
+
+                    "12 KM PARENT CELL",
+
+                    "label-12km"
+
+                );
+
+        }
+
+
+        /* =====================================================
+           AFFECTED AREA
+        ====================================================== */
+
+        renderAffectedArea(
+
+            extremeCells,
+
+            step.forecast_time
+
+        );
+
+    }
+
+
+    /* =========================================================
+       AFFECTED AREA
+    ========================================================== */
+
+    function renderAffectedArea(
+        extremeCells,
+        forecastTime
+    ) {
+
+        affectedAreaLayer.clearLayers();
+
+
+        if (
+            !extremeCells ||
+            !extremeCells.length
+        ) {
+
+            document.getElementById(
+                "mapAffectedLabel"
+            ).textContent =
+                "AFFECTED AREA: —";
+
+            return;
+
+        }
+
+
+        const latitudes =
+            extremeCells.map(
+                cell =>
+                    Number(
+                        cell.latitude
+                    )
+            );
+
+
+        const longitudes =
+            extremeCells.map(
+                cell =>
+                    Number(
+                        cell.longitude
+                    )
+            );
+
+
+        const minLat =
+            Math.min(
+                ...latitudes
+            );
+
+
+        const maxLat =
+            Math.max(
+                ...latitudes
+            );
+
+
+        const minLon =
+            Math.min(
+                ...longitudes
+            );
+
+
+        const maxLon =
+            Math.max(
+                ...longitudes
+            );
+
+
+        const paddingLat =
+            Math.max(
+
+                .20,
+
+                (
+                    maxLat -
+                    minLat
+                ) *
+                .35
+
+            );
+
+
+        const paddingLon =
+            Math.max(
+
+                .20,
+
+                (
+                    maxLon -
+                    minLon
+                ) *
+                .35
+
+            );
+
+
+        const bounds = [
+
+            [
+                minLat -
+                paddingLat,
+
+                minLon -
+                paddingLon
+            ],
+
+            [
+                maxLat +
+                paddingLat,
+
+                maxLon +
+                paddingLon
+            ]
+
+        ];
+
+
+        const area =
+            L.rectangle(
+
+                bounds,
+
+                {
+
+                    color:
+                        "#e0a044",
+
+                    weight:
+                        3,
+
+                    opacity:
+                        .9,
+
+                    fillColor:
+                        "#e0a044",
+
+                    fillOpacity:
+                        .045,
+
+                    dashArray:
+                        "10 7"
+
+                }
+
+            );
+
+
+        area.bindPopup(
+
+            `
+            <strong>
+                AFFECTED AREA
+            </strong>
+
+            <br><br>
+
+            Forecast:
+            ${forecastTime}
+
+            <br>
+
+            Extreme cells:
+            ${extremeCells.length}
+
+            <br><br>
+
+            Prototype spatial boundary
+            around detected extreme cells.
+            `
+
+        );
+
+
+        if (
+            layerState.area
+        ) {
+
+            affectedAreaLayer.addLayer(
+                area
+            );
+
+        }
+
+
+        if (
+            areaLabel
+        ) {
+
+            map.removeLayer(
+                areaLabel
+            );
+
+            areaLabel =
+                null;
+
+        }
+
+
+        areaLabel =
+            createMapLabel(
+
+                maxLat +
+                paddingLat,
+
+                minLon -
+                paddingLon,
+
+                "AFFECTED AREA",
+
+                "label-area"
+
+            );
+
+
+        document.getElementById(
+            "mapAffectedLabel"
+        ).textContent =
+
+            `AFFECTED AREA: ` +
+            `${extremeCells.length} EXTREME CELL(S)`;
+
+    }
+
+
+    /* =========================================================
+       TRAJECTORY
+    ========================================================== */
+
+    function drawTrajectory(
+        trajectory,
+        currentIndex =
+            trajectory.length - 1
+    ) {
+
+        if (
+            trajectoryLine
+        ) {
+
+            map.removeLayer(
+                trajectoryLine
+            );
+
+            trajectoryLine =
+                null;
+
+        }
+
+
+        eventMarkers.forEach(
+            marker =>
+                map.removeLayer(
+                    marker
+                )
+        );
+
+
+        eventMarkers = [];
+
+
+        if (
+            eventCircle
+        ) {
+
+            map.removeLayer(
+                eventCircle
+            );
+
+            eventCircle =
+                null;
+
+        }
+
+
+        if (
+            !trajectory ||
+            !trajectory.length
+        ) {
+
+            return;
+
+        }
+
+
+        const visible =
+            trajectory.slice(
+                0,
+                currentIndex + 1
+            );
+
+
+        const coordinates =
+            visible.map(
+                item => [
+
+                    item.centroid.latitude,
+
+                    item.centroid.longitude
+
+                ]
+            );
+
+
+        if (
+            !coordinates.length
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            layerState.trajectory
+        ) {
+
+            trajectoryLine =
+                L.polyline(
+
+                    coordinates,
+
+                    {
+
+                        color:
+                            "#62c6ff",
+
+                        weight:
+                            4,
+
+                        opacity:
+                            .95
+
+                    }
+
+                ).addTo(map);
+
+        }
+
+
+        visible.forEach(
+            (
+                item,
+                index
+            ) => {
+
+                const isCurrent =
+                    index ===
+                    visible.length - 1;
+
+
+                const marker =
+                    L.circleMarker(
+
+                        [
+
+                            item.centroid.latitude,
+
+                            item.centroid.longitude
+
+                        ],
+
+                        {
+
+                            radius:
+                                isCurrent
+                                    ? 10
+                                    : 7,
+
+                            color:
+                                "#eefaff",
+
+                            weight:
+                                2,
+
+                            fillColor:
+                                "#2f9ed2",
+
+                            fillOpacity:
+                                1
+
+                        }
+
+                    );
+
+
+                marker.bindPopup(
+
+                    `
+                    <strong>
+                        EVT-001
+                    </strong>
+
+                    <br><br>
+
+                    Forecast:
+                    ${item.forecast_time}
+
+                    <br>
+
+                    Location:
+                    ${item.centroid.latitude}° N,
+                    ${item.centroid.longitude}° E
+
+                    <br>
+
+                    Movement:
+                    ${item.movement.direction}
+
+                    <br>
+
+                    Distance:
+                    ${Number(
+                        item.movement.distance_km
+                    ).toFixed(2)} km
+                    `
+
+                );
+
+
+                if (
+                    layerState.trajectory
+                ) {
+
+                    marker.addTo(
+                        map
+                    );
+
+                }
+
+
+                eventMarkers.push(
+                    marker
+                );
+
+            }
+        );
+
+
+        const latest =
+            visible[
+                visible.length - 1
+            ];
+
+
+        if (
+            layerState.trajectory
+        ) {
+
+            eventCircle =
+                L.circle(
+
+                    [
+
+                        latest.centroid.latitude,
+
+                        latest.centroid.longitude
+
+                    ],
+
+                    {
+
+                        radius:
+                            35000,
+
+                        color:
+                            "#62c6ff",
+
+                        weight:
+                            1.5,
+
+                        opacity:
+                            .5,
+
+                        fillColor:
+                            "#62c6ff",
+
+                        fillOpacity:
+                            .04
+
+                    }
+
+                ).addTo(map);
+
+        }
+
+    }
+
+
+    /* =========================================================
+       TRAJECTORY VISIBILITY
+    ========================================================== */
+
+    function refreshTrajectoryVisibility() {
+
+        if (
+            trajectoryLine
+        ) {
+
+            if (
+                layerState.trajectory
+            ) {
+
+                trajectoryLine.addTo(
+                    map
+                );
+
+            } else {
+
+                map.removeLayer(
+                    trajectoryLine
+                );
+
+            }
+
+        }
+
+
+        eventMarkers.forEach(
+            marker => {
+
+                if (
+                    layerState.trajectory
+                ) {
+
+                    marker.addTo(
+                        map
+                    );
+
+                } else {
+
+                    map.removeLayer(
+                        marker
+                    );
+
+                }
+
+            }
+        );
+
+
+        if (
+            eventCircle
+        ) {
+
+            if (
+                layerState.trajectory
+            ) {
+
+                eventCircle.addTo(
+                    map
+                );
+
+            } else {
+
+                map.removeLayer(
+                    eventCircle
+                );
+
+            }
+
+        }
+
+    }
+
+
+    /* =========================================================
+       5 KM REFINED GRID
+    ========================================================== */
+
+    function renderDownscaledGrid(
+        downscaled
+    ) {
+
+        downscaledLayer.clearLayers();
+
+
+        if (
+            !downscaled ||
+            !downscaled.grid ||
+            !downscaled.grid.length
+        ) {
+
+            return;
+
+        }
+
+
+        const center =
+            downscaled.parent_center ||
+            null;
+
+
+        const KM_PER_DEGREE =
+            111.32;
+
+
+        const HALF_CELL_KM =
+            2.5;
+
+
+        /* -----------------------------------------------------
+           5 KM CHILD CELLS
+        ------------------------------------------------------ */
+
+        downscaled.grid.forEach(
+            cell => {
+
+                const lat =
+                    Number(
+                        cell.latitude
+                    );
+
+
+                const lon =
+                    Number(
+                        cell.longitude
+                    );
+
+
+                const halfLat =
+                    HALF_CELL_KM /
+                    KM_PER_DEGREE;
+
+
+                const halfLon =
+                    HALF_CELL_KM /
+                    (
+                        KM_PER_DEGREE *
+                        Math.max(
+                            .1,
+
+                            Math.cos(
+                                lat *
+                                Math.PI /
+                                180
+                            )
+                        )
+                    );
+
+
+                const intensity =
+                    Number(
+                        cell.intensity ||
+                        0
+                    );
+
+
+                const opacity =
+                    Math.min(
+
+                        .42,
+
+                        Math.max(
+
+                            .10,
+
+                            intensity *
+                            .30
+
+                        )
+
+                    );
+
+
+                const rectangle =
+                    L.rectangle(
+
+                        [
+
+                            [
+
+                                lat -
+                                halfLat,
+
+                                lon -
+                                halfLon
+
+                            ],
+
+                            [
+
+                                lat +
+                                halfLat,
+
+                                lon +
+                                halfLon
+
+                            ]
+
+                        ],
+
+                        {
+
+                            color:
+                                "#67d7ff",
+
+                            weight:
+                                2,
+
+                            fillColor:
+                                "#168fb1",
+
+                            fillOpacity:
+                                opacity
+
+                        }
+
+                    );
+
+
+                rectangle.bindPopup(
+
+                    `
+                    <strong>
+                        5 KM REFINED CELL
+                    </strong>
+
+                    <br><br>
+
+                    Cell:
+                    ${cell.cell_id}
+
+                    <br>
+
+                    Position:
+                    ${cell.position || "—"}
+
+                    <br>
+
+                    Latitude:
+                    ${lat.toFixed(3)}°
+
+                    <br>
+
+                    Longitude:
+                    ${lon.toFixed(3)}°
+
+                    <br>
+
+                    Intensity:
+                    ${intensity.toFixed(3)}
+
+                    <br>
+
+                    Relative:
+                    ${Number(
+                        cell.relative_intensity || 0
+                    ).toFixed(3)}
+
+                    <br><br>
+
+                    Prototype spatial refinement.
+                    `
+
+                );
+
+
+                if (
+                    layerState.downscale
+                ) {
+
+                    downscaledLayer.addLayer(
+                        rectangle
+                    );
+
+                }
+
+            }
+        );
+
+
+        /* -----------------------------------------------------
+           12 KM PARENT
+        ------------------------------------------------------ */
+
+        let parentLatitude =
+            null;
+
+
+        let parentLongitude =
+            null;
+
+
+        if (
+            center
+        ) {
+
+            parentLatitude =
+                Number(
+                    center.latitude
+                );
+
+
+            parentLongitude =
+                Number(
+                    center.longitude
+                );
+
+        } else {
+
+            const lats =
+                downscaled.grid.map(
+                    cell =>
+                        Number(
+                            cell.latitude
+                        )
+                );
+
+
+            const lons =
+                downscaled.grid.map(
+                    cell =>
+                        Number(
+                            cell.longitude
+                        )
+                );
+
+
+            parentLatitude =
+
+                (
+                    Math.min(
+                        ...lats
+                    )
+                    +
+                    Math.max(
+                        ...lats
+                    )
+                )
+                /
+                2;
+
+
+            parentLongitude =
+
+                (
+                    Math.min(
+                        ...lons
+                    )
+                    +
+                    Math.max(
+                        ...lons
+                    )
+                )
+                /
+                2;
+
+        }
+
+
+        const parentHalfLat =
+            .054;
+
+
+        const parentHalfLon =
+            .06 /
+            Math.cos(
+                parentLatitude *
+                Math.PI /
+                180
+            );
+
+
+        const parentBoundary =
+            L.rectangle(
+
+                [
+
+                    [
+
+                        parentLatitude -
+                        parentHalfLat,
+
+                        parentLongitude -
+                        parentHalfLon
+
+                    ],
+
+                    [
+
+                        parentLatitude +
+                        parentHalfLat,
+
+                        parentLongitude +
+                        parentHalfLon
+
+                    ]
+
+                ],
+
+                {
+
+                    color:
+                        "#4ea4d0",
+
+                    weight:
+                        3.5,
+
+                    opacity:
+                        .95,
+
+                    fill:
+                        false,
+
+                    dashArray:
+                        "8 5"
+
+                }
+
+            );
+
+
+        parentBoundary.bindPopup(
+
+            `
+            <strong>
+                12 KM PARENT REGION
+            </strong>
+
+            <br><br>
+
+            Source resolution:
+            ${downscaled.source_resolution_km || 12} km
+
+            <br>
+
+            Target resolution:
+            ${downscaled.target_resolution_km || 5} km
+
+            <br>
+
+            Method:
+            ${downscaled.method || "Prototype"}
+
+            <br><br>
+
+            The coarse parent region is being
+            refined into smaller 5 km cells.
+            `
+
+        );
+
+
+        if (
+            layerState.downscale
+        ) {
+
+            downscaledLayer.addLayer(
+                parentBoundary
+            );
+
+        }
+
+
+        if (
+            fiveKmLabel
+        ) {
+
+            map.removeLayer(
+                fiveKmLabel
+            );
+
+            fiveKmLabel =
+                null;
+
+        }
+
+
+        fiveKmLabel =
+            createMapLabel(
+
+                parentLatitude +
+                .075,
+
+                parentLongitude -
+                .035,
+
+                "5 KM REFINED GRID",
+
+                "label-5km"
+
+            );
+
+    }
+
+
+    /* =========================================================
+       TIMELINE
+    ========================================================== */
+
+    function updateTimeline(
+        trajectory,
+        currentIndex =
+            trajectory.length - 1
+    ) {
+
+        const ids = [
+
+            "t24",
+
+            "t48",
+
+            "t72",
+
+            "t96"
+
+        ];
+
+
+        ids.forEach(
+            id => {
+
+                const element =
+                    document.getElementById(
+                        id
+                    );
+
+
+                if (!element) {
+
+                    return;
+
+                }
+
+
+                element.classList.remove(
+                    "active",
+                    "current"
+                );
+
+            }
+        );
+
+
+        trajectory.forEach(
+            (
+                item,
+                index
+            ) => {
+
+                const id =
+                    item.forecast_time
+                        .toLowerCase()
+                        .replace(
+                            "+",
+                            ""
+                        );
+
+
+                const element =
+                    document.getElementById(
+                        id
+                    );
+
+
+                if (!element) {
+
+                    return;
+
+                }
+
+
+                if (
+                    index <=
+                    currentIndex
+                ) {
+
+                    element.classList.add(
+                        "active"
+                    );
+
+                }
+
+
+                if (
+                    index ===
+                    currentIndex
+                ) {
+
+                    element.classList.add(
+                        "current"
+                    );
+
+                }
+
+            }
+        );
+
+
+        const labels =
+            document
+                .getElementById(
+                    "timelineLocations"
+                )
+                .querySelectorAll(
+                    "span"
+                );
+
+
+        labels.forEach(
+            label => {
+
+                label.textContent =
+                    "—";
+
+            }
+        );
+
+
+        trajectory.forEach(
+            (
+                item,
+                index
+            ) => {
+
+                if (
+                    labels[index]
+                ) {
+
+                    labels[index].textContent =
+
+                        `${Number(
+                            item.centroid.latitude
+                        ).toFixed(1)}°N, ` +
+
+                        `${Number(
+                            item.centroid.longitude
+                        ).toFixed(1)}°E`;
+
+                }
+
+            }
+        );
+
+
+        const hint =
+            document.getElementById(
+                "timelineHint"
+            );
+
+
+        if (
+            hint &&
+            trajectory.length
+        ) {
+
+            hint.textContent =
+                "Click any forecast point to inspect that horizon.";
+
+        }
+
+    }
+
+
+    /* =========================================================
+       INTENSITY TREND
+    ========================================================== */
+
+    function updateIntensityTrend(
+        trajectory
+    ) {
+
+        const bars =
+            document
+                .getElementById(
+                    "trendBars"
+                )
+                .querySelectorAll(
+                    ".trend-bar"
+                );
+
+
+        const values =
+            trajectory.map(
+                item => {
+
+                    if (
+                        !item.extreme_cells ||
+                        !item.extreme_cells.length
+                    ) {
+
+                        return 0;
+
+                    }
+
+
+                    return Math.max(
+
+                        ...item.extreme_cells.map(
+                            cell =>
+                                Number(
+                                    cell.anomaly_score
+                                )
+                        )
+
+                    );
+
+                }
+            );
+
+
+        const max =
+            Math.max(
+                3,
+                ...values
+            );
+
+
+        bars.forEach(
+            (
+                bar,
+                index
+            ) => {
+
+                const value =
+                    values[index] ||
+                    0;
+
+
+                const height =
+                    Math.max(
+
+                        8,
+
+                        Math.min(
+
+                            100,
+
+                            (
+                                value /
+                                max
+                            ) *
+                            100
+
+                        )
+
+                    );
+
+
+                bar.style.height =
+                    `${height}%`;
+
+
+                bar.classList.toggle(
+                    "active",
+
+                    index ===
+                    values.length - 1
+                );
+
+            }
+        );
+
+
+        const latest =
+            values[
+                values.length - 1
+            ];
+
+
+        document.getElementById(
+            "trendValue"
+        ).textContent =
+
+            latest !== undefined
+
+                ? latest.toFixed(3)
+
+                : "—";
+
+    }
+
+
+    /* =========================================================
+       REFINEMENT PANEL
+    ========================================================== */
+
+    function updateRefinement(
+        downscaled
+    ) {
+
+        if (!downscaled) {
+
+            return;
+
+        }
+
+
+        document.getElementById(
+            "refMethod"
+        ).textContent =
+
+            downscaled.method ||
+            "Prototype";
+
+
+        document.getElementById(
+            "refPeak"
+        ).textContent =
+
+            downscaled.peak_intensity !==
+            undefined
+
+                ? Number(
+                    downscaled.peak_intensity
+                ).toFixed(3)
+
+                : "—";
+
+
+        document.getElementById(
+            "refMean"
+        ).textContent =
+
+            downscaled.mean_intensity !==
+            undefined
+
+                ? Number(
+                    downscaled.mean_intensity
+                ).toFixed(3)
+
+                : "—";
+
+
+        document.getElementById(
+            "refStatus"
+        ).textContent =
+
+            downscaled.model_status ||
+            "DEMO / PROTOTYPE";
+
+
+        const fineGrid =
+            document.getElementById(
+                "fineGrid"
+            );
+
+
+        fineGrid.innerHTML =
+            "";
+
+
+        if (
+            downscaled.grid &&
+            downscaled.grid.length
+        ) {
+
+            const peak =
+                Math.max(
+
+                    ...downscaled.grid.map(
+                        cell =>
+                            Number(
+                                cell.intensity
+                            )
+                    )
+
+                );
+
+
+            downscaled.grid.forEach(
+                cell => {
+
+                    const mini =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    mini.className =
+                        "mini-cell";
+
+
+                    const intensity =
+                        Number(
+                            cell.intensity
+                        );
+
+
+                    mini.textContent =
+                        intensity.toFixed(2);
+
+
+                    if (
+                        intensity ===
+                        peak
+                    ) {
+
+                        mini.classList.add(
+                            "hot"
+                        );
+
+                    }
+
+
+                    fineGrid.appendChild(
+                        mini
+                    );
+
+                }
+            );
+
+        }
+
+    }
+
+
+    /* =========================================================
+       VALIDATION RESET
+    ========================================================== */
+
+    function resetValidationUI() {
+
+        currentValidation =
+            null;
+
+
+        const timeTag =
+            document.getElementById(
+                "validationTimeTag"
+            );
+
+
+        if (timeTag) {
+
+            timeTag.textContent =
+                "—";
+
+        }
+
+
+        document.getElementById(
+            "validationReference"
+        ).textContent =
+            "Reference: Waiting for analysis";
+
+
+        document.getElementById(
+            "validationMAE"
+        ).textContent =
+            "—";
+
+
+        document.getElementById(
+            "validationRMSE"
+        ).textContent =
+            "—";
+
+
+        document.getElementById(
+            "validationCorrelation"
+        ).textContent =
+            "—";
+
+
+        document.getElementById(
+            "validationPeak"
+        ).textContent =
+            "—";
+
+
+        document.getElementById(
+            "validationOverlap"
+        ).textContent =
+            "—";
+
+    }
+
+
+    /* =========================================================
+       TIME-WISE VALIDATION
+    ========================================================== */
+
+    function updateValidationForTime(
+        validation,
+        forecastTime
+    ) {
+
+        const timeTag =
+            document.getElementById(
+                "validationTimeTag"
+            );
+
+
+        if (timeTag) {
+
+            timeTag.textContent =
+                forecastTime;
+
+        }
+
+
+        const reference =
+            document.getElementById(
+                "validationReference"
+            );
+
+
+        const mae =
+            document.getElementById(
+                "validationMAE"
+            );
+
+
+        const rmse =
+            document.getElementById(
+                "validationRMSE"
+            );
+
+
+        const correlation =
+            document.getElementById(
+                "validationCorrelation"
+            );
+
+
+        const peak =
+            document.getElementById(
+                "validationPeak"
+            );
+
+
+        const overlap =
+            document.getElementById(
+                "validationOverlap"
+            );
+
+
+        if (
+            !validation ||
+            validation.status !==
+                "VALIDATION_COMPLETE" ||
+            !validation.metrics
+        ) {
+
+            reference.textContent =
+
+                `Reference: No validation available · ${forecastTime}`;
+
+
+            mae.textContent =
+                "—";
+
+
+            rmse.textContent =
+                "—";
+
+
+            correlation.textContent =
+                "—";
+
+
+            peak.textContent =
+                "—";
+
+
+            overlap.textContent =
+                "—";
+
+
+            return;
+
+        }
+
+
+        const metrics =
+            validation.metrics;
+
+
+        reference.textContent =
+
+            `Reference: ` +
+
+            `${validation.reference_type || "SIMULATED REFERENCE FIELD"} · ` +
+
+            `${forecastTime}`;
+
+
+        mae.textContent =
+
+            Number(
+                metrics.mae
+            ).toFixed(4);
+
+
+        rmse.textContent =
+
+            Number(
+                metrics.rmse
+            ).toFixed(4);
+
+
+        correlation.textContent =
+
+            Number(
+                metrics.correlation
+            ).toFixed(4);
+
+
+        peak.textContent =
+
+            `${Number(
+                metrics.peak_error_percent
+            ).toFixed(2)} %`;
+
+
+        overlap.textContent =
+
+            `${Number(
+                metrics.spatial_overlap_percent
+            ).toFixed(2)} %`;
+
+    }
+
+
+    /* =========================================================
+       LATEST VALIDATION
+    ========================================================== */
+
+    function updateValidationUI(
+        validationResponse
+    ) {
+
+        if (
+            !validationResponse ||
+            validationResponse.status !==
+                "VALIDATION_COMPLETE"
+        ) {
+
+            return;
+
+        }
+
+
+        currentValidation =
+            validationResponse;
+
+
+        const validation =
+            validationResponse.validation;
+
+
+        if (!validation) {
+
+            return;
+
+        }
+
+
+        updateValidationForTime(
+
+            {
+
+                status:
+                    "VALIDATION_COMPLETE",
+
+                reference_type:
+                    validation.reference_type,
+
+                metrics:
+                    validation.metrics
+
+            },
+
+            validationResponse.forecast_time ||
+            "—"
+
+        );
+
+    }
+
+
+    /* =========================================================
+       LOAD LATEST VALIDATION
+    ========================================================== */
+
+    async function loadValidation() {
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_BASE}/api/validation`
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    `Validation API returned ${response.status}`
+                );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            updateValidationUI(
+                data
+            );
+
+
+            return data;
+
+
+        } catch (error) {
+
+            console.error(
+                "Validation error:",
+                error
+            );
+
+
+            document.getElementById(
+                "validationReference"
+            ).textContent =
+                "Validation unavailable";
+
+
+            return null;
+
+        }
+
+    }
+
+
+    /* =========================================================
+       SELECT FORECAST TIME
+    ========================================================== */
+
+    function selectForecastTime(
+        index
+    ) {
+
+        if (
+            !currentMapData
+        ) {
+
+            return;
+
+        }
+
+
+        const steps =
+            currentMapData.forecast_steps ||
+            [];
+
+
+        const metrics =
+            currentMapData.time_metrics ||
+            [];
+
+
+        const trajectory =
+            currentMapData.trajectory ||
+            [];
+
+
+        /*
+         * New backend sends:
+         *
+         * validation_by_time:
+         * [
+         *   { forecast_time: "T+24", ... },
+         *   { forecast_time: "T+48", ... },
+         *   { forecast_time: "T+72", ... },
+         *   { forecast_time: "T+96", ... }
+         * ]
+         */
+
+        const validations =
+            currentMapData.validation_by_time ||
+            [];
+
+
+        if (
+            index < 0 ||
+            index >= steps.length
+        ) {
+
+            return;
+
+        }
+
+
+        selectedForecastIndex =
+            index;
+
+
+        const selectedStep =
+            steps[index];
+
+
+        const selectedMetric =
+            metrics.find(
+                item =>
+                    item.forecast_time ===
+                    selectedStep.forecast_time
+            );
+
+
+        const selectedValidation =
+            validations.find(
+                item =>
+                    item.forecast_time ===
+                    selectedStep.forecast_time
+            );
+
+
+        /* =====================================================
+           MAP
+        ====================================================== */
+
+        clearMapData();
+
+
+        renderForecastStep(
+            selectedStep
+        );
+
+
+        drawTrajectory(
+            trajectory,
+            index
+        );
+
+
+        updateTimeline(
+            trajectory,
+            index
+        );
+
+
+        setMapStatus(
+
+            `Viewing ${selectedStep.forecast_time} forecast`,
+
+            selectedStep.forecast_time
+
+        );
+
+
+        /* =====================================================
+           EVENT DETAILS
+        ====================================================== */
+
+        if (
+            selectedMetric
+        ) {
+
+            document.getElementById(
+                "forecastTime"
+            ).textContent =
+                selectedMetric.forecast_time;
+
+
+            document.getElementById(
+                "location"
+            ).textContent =
+
+                `${Number(
+                    selectedMetric.latitude
+                ).toFixed(2)}° N, ` +
+
+                `${Number(
+                    selectedMetric.longitude
+                ).toFixed(2)}° E`;
+
+
+            document.getElementById(
+                "anomaly"
+            ).textContent =
+
+                Number(
+                    selectedMetric.anomaly
+                ).toFixed(3);
+
+
+            document.getElementById(
+                "movement"
+            ).textContent =
+
+                `${selectedMetric.movement.direction} · ` +
+
+                `${Number(
+                    selectedMetric.movement.distance_km
+                ).toFixed(2)} km`;
+
+
+            document.getElementById(
+                "risk"
+            ).textContent =
+
+                `${selectedMetric.risk_level} · ` +
+
+                `${Number(
+                    selectedMetric.risk_score
+                ).toFixed(3)}`;
+
+
+            document.getElementById(
+                "severity"
+            ).textContent =
+                selectedMetric.severity;
+
+
+            document.getElementById(
+                "affectedCells"
+            ).textContent =
+                selectedMetric.affected_cells;
+
+
+            document.getElementById(
+                "highestSeverity"
+            ).textContent =
+                selectedMetric.severity;
+
+
+            document.getElementById(
+                "mapAffectedLabel"
+            ).textContent =
+
+                `AFFECTED AREA: ` +
+
+                `${selectedMetric.affected_cells} EXTREME CELL(S)`;
+
+
+            document.getElementById(
+                "alertTitle"
+            ).textContent =
+
+                `${selectedMetric.risk_level} RISK — ` +
+
+                `${selectedMetric.forecast_time}`;
+
+
+            document.getElementById(
+                "alertMessage"
+            ).textContent =
+
+                `At ${selectedMetric.forecast_time}, ` +
+
+                `the prototype anomaly score is ` +
+
+                `${Number(
+                    selectedMetric.anomaly
+                ).toFixed(3)} and the prototype ` +
+
+                `risk level is ${selectedMetric.risk_level}.`;
+
+        }
+
+
+        /* =====================================================
+           VALIDATION FOR SELECTED HORIZON
+        ====================================================== */
+
+        if (
+            selectedValidation
+        ) {
+
+            updateValidationForTime(
+
+                {
+
+                    status:
+                        selectedValidation.status,
+
+                    reference_type:
+                        selectedValidation.reference_type,
+
+                    metrics:
+                        selectedValidation.metrics
+
+                },
+
+                selectedValidation.forecast_time
+
+            );
+
+        } else {
+
+            /*
+             * Fallback for an older backend.
+             * If validation_by_time is unavailable,
+             * keep the latest validation visible.
+             */
+
+            if (
+                index ===
+                steps.length - 1 &&
+                currentValidation
+            ) {
+
+                updateValidationUI(
+                    currentValidation
+                );
+
+            } else {
+
+                updateValidationForTime(
+                    null,
+                    selectedStep.forecast_time
+                );
+
+            }
+
+        }
+
+
+        /* =====================================================
+           5 KM GRID
+        ====================================================== */
+
+        /*
+         * Current downscaling prototype returns
+         * the final refined state.
+         *
+         * Display it at T+96.
+         */
+
+        if (
+            index ===
+            steps.length - 1
+        ) {
+
+            if (
+                currentMapData.downscaled
+            ) {
+
+                renderDownscaledGrid(
+                    currentMapData.downscaled
+                );
+
+            }
+
+        }
+
+
+        /* =====================================================
+           MAP CENTER
+        ====================================================== */
+
+        if (
+            selectedMetric
+        ) {
+
+            map.flyTo(
+
+                [
+
+                    selectedMetric.latitude,
+
+                    selectedMetric.longitude
+
+                ],
+
+                7,
+
+                {
+
+                    duration:
+                        .8
+
+                }
+
+            );
+
+        }
+
+    }
+
+
+    /* =========================================================
+       UPDATE DASHBOARD
+    ========================================================== */
+
+    function updateDashboard(
+        result,
+        mapData
+    ) {
+
+        if (
+            !result ||
+            result.status !==
+                "ANALYSIS_COMPLETE"
+        ) {
+
+            return;
+
+        }
+
+
+        const event =
+            result.event;
+
+
+        const tracking =
+            result.tracking;
+
+
+        const risk =
+            result.risk;
+
+
+        const downscaled =
+            result.downscaling;
+
+
+        const alert =
+            result.alert;
+
+
+        document.getElementById(
+            "activeEvents"
+        ).textContent =
+            "1";
+
+
+        document.getElementById(
+            "highestSeverity"
+        ).textContent =
+            event.severity;
+
+
+        document.getElementById(
+            "resolution"
+        ).textContent =
+            "12 → 5 km";
+
+
+        document.getElementById(
+            "eventId"
+        ).textContent =
+
+            `EVENT ID: ${event.event_id}`;
+
+
+        document.getElementById(
+            "selectedEventTag"
+        ).textContent =
+            event.event_id;
+
+
+        document.getElementById(
+            "eventName"
+        ).textContent =
+            "Extreme Weather Event";
+
+
+        document.getElementById(
+            "severity"
+        ).textContent =
+            event.severity;
+
+
+        document.getElementById(
+            "forecastTime"
+        ).textContent =
+            event.forecast_time;
+
+
+        document.getElementById(
+            "location"
+        ).textContent =
+
+            `${event.centroid.latitude}° N, ` +
+
+            `${event.centroid.longitude}° E`;
+
+
+        document.getElementById(
+            "anomaly"
+        ).textContent =
+
+            Number(
+                event.max_anomaly
+            ).toFixed(3);
+
+
+        document.getElementById(
+            "movement"
+        ).textContent =
+
+            `${tracking.direction} · ` +
+
+            `${Number(
+                tracking.movement_distance_km
+            ).toFixed(2)} km`;
+
+
+        document.getElementById(
+            "risk"
+        ).textContent =
+
+            `${risk.level} · ` +
+
+            `${Number(
+                risk.score
+            ).toFixed(3)}`;
+
+
+        document.getElementById(
+            "affectedCells"
+        ).textContent =
+            event.affected_cells;
+
+
+        updateTimeline(
+            mapData.trajectory
+        );
+
+
+        updateIntensityTrend(
+            mapData.trajectory
+        );
+
+
+        updateRefinement(
+            downscaled
+        );
+
+
+        document.getElementById(
+            "alertTitle"
+        ).textContent =
+
+            `${risk.level} RISK EVENT`;
+
+
+        document.getElementById(
+            "alertMessage"
+        ).textContent =
+            alert.message;
+
+    }
+
+
+    /* =========================================================
+       FORECAST ANIMATION
+    ========================================================== */
+
+    async function animateForecastEvolution(
+        mapData
+    ) {
+
+        const steps =
+            mapData.forecast_steps ||
+            [];
+
+
+        const trajectory =
+            mapData.trajectory ||
+            [];
+
+
+        for (
+            let index = 0;
+
+            index < steps.length;
+
+            index++
+        ) {
+
+            const step =
+                steps[index];
+
+
+            clearMapData();
+
+
+            renderForecastStep(
+                step
+            );
+
+
+            drawTrajectory(
+                trajectory,
+                index
+            );
+
+
+            updateTimeline(
+                trajectory,
+                index
+            );
+
+
+            setMapStatus(
+
+                `Forecast evolution: ${step.forecast_time}`,
+
+                step.forecast_time
+
+            );
+
+
+            if (
+                step.cells
+            ) {
+
+                const extreme =
+                    step.cells.filter(
+                        cell =>
+                            cell.is_extreme
+                    );
+
+
+                if (
+                    extreme.length
+                ) {
+
+                    const maximum =
+                        Math.max(
+
+                            ...extreme.map(
+                                cell =>
+                                    Number(
+                                        cell.anomaly_score
+                                    )
+                            )
+
+                        );
+
+
+                    document.getElementById(
+                        "anomaly"
+                    ).textContent =
+
+                        maximum.toFixed(3);
+
+                }
+
+            }
+
+
+            await wait(
+                750
+            );
+
+        }
+
+
+        if (
+            mapData.downscaled
+        ) {
+
+            renderDownscaledGrid(
+                mapData.downscaled
+            );
+
+
+            updateRefinement(
+                mapData.downscaled
+            );
+
+        }
+
+
+        drawTrajectory(
+            trajectory
+        );
+
+
+        updateTimeline(
+            trajectory
+        );
+
+
+        updateIntensityTrend(
+            trajectory
+        );
+
+    }
+
+
+    /* =========================================================
+       RUN ANALYSIS
+    ========================================================== */
+
+    async function runAnalysis() {
+
+        const button =
+            document.getElementById(
+                "runButton"
+            );
+
+
+        button.disabled =
+            true;
+
+
+        button.textContent =
+            "RUNNING ANALYSIS...";
+
+
+        clearMapData();
+
+
+        resetValidationUI();
+
+
+        try {
+
+
+            /* -------------------------------------------------
+               FORECAST
+            -------------------------------------------------- */
+
+            setPipeline(
+                "forecast"
+            );
+
+
+            setMapStatus(
+                "Loading 12 km forecast..."
+            );
+
+
+            const forecastResponse =
+                await fetch(
+                    `${API_BASE}/api/forecast`
+                );
+
+
+            if (
+                !forecastResponse.ok
+            ) {
+
+                throw new Error(
+                    "Forecast API failed"
+                );
+
+            }
+
+
+            await wait(
+                550
+            );
+
+
+            /* -------------------------------------------------
+               ANOMALY
+            -------------------------------------------------- */
+
+            setPipeline(
+
+                "anomaly",
+
+                [
+                    "forecast"
+                ]
+
+            );
+
+
+            setMapStatus(
+                "Detecting extreme anomalies..."
+            );
+
+
+            await wait(
+                650
+            );
+
+
+            /* -------------------------------------------------
+               TRACKING
+            -------------------------------------------------- */
+
+            setPipeline(
+
+                "tracking",
+
+                [
+                    "forecast",
+                    "anomaly"
+                ]
+
+            );
+
+
+            setMapStatus(
+                "Tracking event through forecast time..."
+            );
+
+
+            await wait(
+                650
+            );
+
+
+            /* -------------------------------------------------
+               ANALYSIS
+            -------------------------------------------------- */
+
+            const response =
+                await fetch(
+
+                    `${API_BASE}/api/analyze`,
+
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify(
+                                {}
+                            )
+
+                    }
+
+                );
+
+
+            if (
+                !response.ok
+            ) {
+
+                throw new Error(
+                    "Analysis API failed"
+                );
+
+            }
+
+
+            const result =
+                await response.json();
+
+
+            /* -------------------------------------------------
+               MAP DATA
+            -------------------------------------------------- */
+
+            const mapResponse =
+                await fetch(
+                    `${API_BASE}/api/map-data`
+                );
+
+
+            if (
+                !mapResponse.ok
+            ) {
+
+                throw new Error(
+                    "Map data API failed"
+                );
+
+            }
+
+
+            const mapData =
+                await mapResponse.json();
+
+
+            currentMapData =
+                mapData;
+
+
+            /* -------------------------------------------------
+               FORECAST ANIMATION
+            -------------------------------------------------- */
+
+            await animateForecastEvolution(
+                mapData
+            );
+
+
+            /* -------------------------------------------------
+               DOWNSCALING
+            -------------------------------------------------- */
+
+            setPipeline(
+
+                "downscale",
+
+                [
+                    "forecast",
+                    "anomaly",
+                    "tracking"
+                ]
+
+            );
+
+
+            setMapStatus(
+                "Refining 12 km parent into 5 km prototype grid..."
+            );
+
+
+            if (
+                mapData.downscaled
+            ) {
+
+                renderDownscaledGrid(
+                    mapData.downscaled
+                );
+
+
+                updateRefinement(
+                    mapData.downscaled
+                );
+
+            }
+
+
+            await wait(
+                700
+            );
+
+
+            /* -------------------------------------------------
+               VALIDATION
+            -------------------------------------------------- */
+
+            setMapStatus(
+                "Validating 5 km prototype field..."
+            );
+
+
+            const validation =
+                await loadValidation();
+
+
+            if (
+                validation
+            ) {
+
+                await wait(
+                    650
+                );
+
+            }
+
+
+            /* -------------------------------------------------
+               RISK
+            -------------------------------------------------- */
+
+            setPipeline(
+
+                "risk",
+
+                [
+                    "forecast",
+                    "anomaly",
+                    "tracking",
+                    "downscale"
+                ]
+
+            );
+
+
+            setMapStatus(
+                "Assessing event risk..."
+            );
+
+
+            await wait(
+                700
+            );
+
+
+            /* -------------------------------------------------
+               ALERT
+            -------------------------------------------------- */
+
+            setPipeline(
+
+                "alert",
+
+                [
+                    "forecast",
+                    "anomaly",
+                    "tracking",
+                    "downscale",
+                    "risk"
+                ]
+
+            );
+
+
+            setMapStatus(
+                "Generating prototype alert..."
+            );
+
+
+            await wait(
+                650
+            );
+
+
+            /* -------------------------------------------------
+               FINAL
+            -------------------------------------------------- */
+
+            updateDashboard(
+                result,
+                mapData
+            );
+
+
+            setPipeline(
+
+                null,
+
+                [
+                    "forecast",
+                    "anomaly",
+                    "tracking",
+                    "downscale",
+                    "risk",
+                    "alert"
+                ]
+
+            );
+
+
+            document.getElementById(
+                "pipelineStatus"
+            ).textContent =
+                "ANALYSIS COMPLETE";
+
+
+            /* -------------------------------------------------
+               SELECT FINAL T+96
+            -------------------------------------------------- */
+
+            selectedForecastIndex =
+                mapData.forecast_steps.length - 1;
+
+
+            selectForecastTime(
+                selectedForecastIndex
+            );
+
+
+            setMapStatus(
+
+                "Analysis complete — select a forecast time to inspect",
+
+                mapData.forecast_steps[
+                    mapData.forecast_steps.length - 1
+                ].forecast_time
+
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "STORMIS analysis failed:",
+                error
+            );
+
+
+            setMapStatus(
+                "Analysis failed — check FastAPI"
+            );
+
+
+            document.getElementById(
+                "pipelineStatus"
+            ).textContent =
+                "ERROR";
+
+
+            alert(
+
+                "STORMIS backend connection failed.\n\n" +
+
+                "Make sure FastAPI is running:\n\n" +
+
+                "uvicorn main:app --reload"
+
+            );
+
+        } finally {
+
+            button.disabled =
+                false;
+
+
+            button.textContent =
+                "RUN EXTREME EVENT ANALYSIS";
+
+        }
+
+    }
+
+
+    /* =========================================================
+       INITIAL STATE
+    ========================================================== */
+
+    resetValidationUI();
+
+    checkBackend();
+
+</script>
+
+
+</body>
+
+</html>
