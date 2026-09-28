@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STORMIS — Extreme Weather Intelligence</title>
+    <meta name="description" content="AI-Driven Spatio-Temporal Tracking of Extreme Weather Anomalies. Smart India Hackathon Prototype.">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- =============== SIDEBAR =============== -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-logo">
+                <div class="logo-icon">S</div>
+                STORMIS
+            </div>
+            <div class="sidebar-subtitle">Extreme Weather Intelligence</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-item active" data-page="overview">
+                <span class="nav-icon">◈</span> Overview
+            </div>
+            <div class="nav-item" data-page="forecast">
+                <span class="nav-icon">◉</span> Forecast Monitor
+            </div>
+            <div class="nav-item" data-page="efi">
+                <span class="nav-icon">◆</span> EFI Tracking
+            </div>
+            <div class="nav-item" data-page="downscaling">
+                <span class="nav-icon">◇</span> AI Downscaling
+            </div>
+            <div class="nav-item" data-page="alerts">
+                <span class="nav-icon">◈</span> Alert Center
+            </div>
+            <div class="nav-item" data-page="analysis">
+                <span class="nav-icon">◎</span> Event Analysis
+            </div>
+            <div class="nav-item" data-page="system">
+                <span class="nav-icon">◉</span> System Status
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-status">
+                <span class="status-dot"></span> SYSTEM ONLINE
+            </div>
+            <div class="sidebar-mode">Prototype Simulation</div>
+        </div>
+    </aside>
+
+    <!-- =============== TOP BAR =============== -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="topbar-title">STORMIS</div>
+            <div class="topbar-tag">MoES / NCMRWF RESEARCH PROTOTYPE</div>
+        </div>
+        <div class="topbar-right">
+            <div class="topbar-info">
+                <div class="topbar-info-label">Forecast Cycle</div>
+                <div class="topbar-info-value accent">26 MAY 2020 • 00 UTC</div>
+            </div>
+            <div class="topbar-info">
+                <div class="topbar-info-label">Model</div>
+                <div class="topbar-info-value">NEPS-G Ensemble</div>
+            </div>
+            <div class="topbar-info">
+                <div class="topbar-info-label">Members</div>
+                <div class="topbar-info-value">23</div>
+            </div>
+            <div class="topbar-info">
+                <div class="topbar-info-label">Range</div>
+                <div class="topbar-info-value">+3 to +10 Days</div>
+            </div>
+            <div class="topbar-status"><span class="dot"></span> OPERATIONAL</div>
+            <div class="topbar-clock" id="liveClock">--:--:--</div>
+            <button class="demo-badge-top" onclick="toggleDemoModal()">DEMO MODE</button>
+        </div>
+    </div>
+
+    <!-- =============== MAIN CONTENT =============== -->
+    <div class="main-content">
+
+        <!-- ========== PAGE: OVERVIEW ========== -->
+        <div class="page active" id="page-overview">
+            <div class="page-header">
+                <div class="page-title">Extreme Weather Intelligence</div>
+                <div class="page-subtitle">AI-driven spatio-temporal detection, tracking and amplitude-preserving downscaling.</div>
+            </div>
+
+            <!-- KPIs -->
+            <div class="kpi-grid" id="kpiGrid"></div>
+
+            <!-- Pipeline -->
+            <div class="panel mb-md">
+                <div class="panel-header">
+                    <div class="panel-title">LIVE PIPELINE</div>
+                    <div class="panel-tag" id="pipelineStatus">READY</div>
+                </div>
+                <div class="pipeline-flow" id="pipelineFlow"></div>
+                <div style="padding:0 18px 18px; text-align:center;">
+                    <button class="btn-primary" id="runPipelineBtn" onclick="runPipeline()">
+                        ▶ RUN FORECAST CYCLE
+                    </button>
+                </div>
+            </div>
+
+            <!-- Overview Map + Event Summary -->
+            <div class="grid-2-1">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">INDIA — ANOMALY OVERVIEW</div>
+                        <div class="panel-tag">SIMULATED FIELD</div>
+                    </div>
+                    <div style="position:relative;">
+                        <div class="map-overlay map-overlay-tl" id="overviewMapStatus">Awaiting forecast cycle</div>
+                        <div id="map" style="height:460px;"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="panel mb-md">
+                        <div class="panel-header">
+                            <div class="panel-title">ACTIVE EVENT</div>
+                            <div class="panel-tag" id="activeEventTag">—</div>
+                        </div>
+                        <div class="panel-body" id="eventSummary">
+                            <div style="color:var(--text-dim); font-size:12px;">Run forecast cycle to detect events.</div>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">ALERT FEED</div>
+                            <div class="panel-tag">PROTOTYPE</div>
+                        </div>
+                        <div class="panel-body" id="overviewAlertFeed">
+                            <div style="color:var(--text-dim); font-size:12px;">No alerts generated yet.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== PAGE: FORECAST MONITOR ========== -->
+        <div class="page" id="page-forecast">
+            <div class="page-header">
+                <div class="page-title">Forecast Monitor</div>
+                <div class="page-subtitle">Multi-day ensemble forecast field with anomaly detection overlay.</div>
+            </div>
+            <div class="grid-sidebar">
+                <div>
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">FORECAST DAYS</div>
+                            <div class="panel-tag">D+3 TO D+10</div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="forecast-days" id="forecastDaysList"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">INDIA — EXTREME ANOMALY PROBABILITY</div>
+                        <div class="panel-tag" id="forecastMapTag">SELECT A FORECAST DAY</div>
+                    </div>
+                    <div style="position:relative;">
+                        <div class="map-overlay map-overlay-tl" id="forecastMapStatus">Select a forecast day</div>
+                        <div id="forecastMap" style="height:520px;"></div>
+                        <div class="map-legend-panel">
+                            <div class="legend-title">ANOMALY SEVERITY</div>
+                            <div class="legend-row"><div class="legend-swatch" style="background:rgba(59,130,246,.4);"></div> NORMAL</div>
+                            <div class="legend-row"><div class="legend-swatch" style="background:rgba(251,191,36,.5);"></div> MODERATE</div>
+                            <div class="legend-row"><div class="legend-swatch" style="background:rgba(251,146,36,.6);"></div> HIGH</div>
+                            <div class="legend-row"><div class="legend-swatch" style="background:rgba(248,113,113,.7);"></div> EXTREME</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== PAGE: EFI TRACKING ========== -->
+        <div class="page" id="page-efi">
+            <div class="page-header">
+                <div class="page-title">Extreme Forecast Index Tracking</div>
+                <div class="page-subtitle">EFI computation against 30-year ERA5 climatological quantile baseline.</div>
+            </div>
+
+            <!-- EFI Meta -->
+            <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr); margin-bottom:18px;">
+                <div class="kpi-card"><div class="kpi-label">Forecast</div><div class="kpi-value" style="font-size:16px;">NEPS-G Ensemble</div></div>
+                <div class="kpi-card"><div class="kpi-label">Members</div><div class="kpi-value" style="font-size:16px;">23</div></div>
+                <div class="kpi-card"><div class="kpi-label">Baseline</div><div class="kpi-value" style="font-size:16px;">ERA5 1991–2020</div></div>
+                <div class="kpi-card"><div class="kpi-label">Variable</div><div class="kpi-value" style="font-size:16px;">2m Temperature</div></div>
+            </div>
+
+            <div class="grid-2-1">
+                <!-- EFI Map -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">EFI SPATIAL FIELD + TRAJECTORY</div>
+                        <div class="panel-tag">SIMULATED</div>
+                    </div>
+                    <div style="position:relative;">
+                        <div id="efiMap" style="height:480px;"></div>
+                    </div>
+                </div>
+                <!-- EFI Details -->
+                <div>
+                    <div class="panel mb-md">
+                        <div class="panel-header">
+                            <div class="panel-title">DETECTED ANOMALY</div>
+                            <div class="panel-tag" style="color:var(--red);">SEVERE</div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="detail-row"><div class="detail-label">Type</div><div class="detail-value" style="color:var(--red);">HEATWAVE</div></div>
+                            <div class="detail-row"><div class="detail-label">Peak EFI</div><div class="detail-value" style="color:var(--cyan);">0.91</div></div>
+                            <div class="detail-row"><div class="detail-label">Max Anomaly</div><div class="detail-value" style="color:var(--red);">+4.8°C</div></div>
+                            <div class="detail-row"><div class="detail-label">Track Confidence</div><div class="detail-value">92%</div></div>
+                            <div class="detail-row"><div class="detail-label">Current Centroid</div><div class="detail-value">28.61° N, 77.21° E</div></div>
+                            <div class="detail-row"><div class="detail-label">Movement</div><div class="detail-value" style="color:var(--amber);">EAST-NORTHEAST</div></div>
+                            <div class="detail-row"><div class="detail-label">Impact Radius</div><div class="detail-value">5 km</div></div>
+                        </div>
+                    </div>
+                    <!-- EFI Engine Viz -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">EFI ENGINE</div>
+                            <div class="panel-tag">COMPUTATION</div>
+                        </div>
+                        <div class="panel-body text-center">
+                            <div class="grid-2 gap-sm">
+                                <div class="distribution-panel">
+                                    <div class="dist-title">Climatology Distribution</div>
+                                    <canvas id="climCanvas" width="220" height="100"></canvas>
+                                </div>
+                                <div class="distribution-panel">
+                                    <div class="dist-title">Ensemble Forecast</div>
+                                    <canvas id="ensCanvas" width="220" height="100"></canvas>
+                                </div>
+                            </div>
+                            <div class="efi-result-display mt-md">
+                                <div style="font-size:10px; color:var(--text-dim); letter-spacing:.8px; text-transform:uppercase;">Extreme Forecast Index</div>
+                                <div class="efi-score-big" id="efiScoreDisplay">0.00</div>
+                                <div style="font-size:11px; color:var(--text-muted); margin-top:6px;">Extreme tail probability detected</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== PAGE: AI DOWNSCALING ========== -->
+        <div class="page" id="page-downscaling">
+            <div class="page-header">
+                <div class="page-title">AI Amplitude-Preserving Downscaling</div>
+                <div class="page-subtitle">Conditional diffusion reconstruction of fine-scale extreme weather structure.</div>
+            </div>
+
+            <!-- Downscale Pipeline -->
+            <div class="panel mb-md">
+                <div class="panel-header">
+                    <div class="panel-title">RESOLUTION ENHANCEMENT PIPELINE</div>
+                    <div class="panel-tag">CONDITIONAL DDPM</div>
+                </div>
+                <div class="panel-body">
+                    <div class="downscale-compare">
+                        <div class="downscale-side">
+                            <div class="downscale-label">Coarse Forecast</div>
+                            <div class="downscale-res">12 km</div>
+                            <div style="color:var(--text-dim); font-size:10px; margin-top:4px;">NEPS-G Input</div>
+                        </div>
+                        <div class="downscale-arrow">→</div>
+                        <div class="downscale-side">
+                            <div class="downscale-label">Fine-Scale Field</div>
+                            <div class="downscale-res" style="color:var(--cyan);">5 km</div>
+                            <div style="color:var(--text-dim); font-size:10px; margin-top:4px;">Diffusion Output (4× Enhanced)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coarse vs Fine Visualization -->
+            <div class="grid-2 mb-md">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">COARSE / BILINEAR</div>
+                        <div class="panel-tag">12 KM</div>
+                    </div>
+                    <div class="panel-body">
+                        <canvas id="coarseCanvas" width="500" height="340" style="width:100%; border-radius:8px; background:#0a0f1a;"></canvas>
+                        <div style="text-align:center; margin-top:8px; font-size:10px; color:var(--text-dim);">Smoothed extremes — peak dampened</div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">XTREMECAST DIFFUSION</div>
+                        <div class="panel-tag" style="color:var(--cyan);">5 KM</div>
+                    </div>
+                    <div class="panel-body">
+                        <canvas id="fineCanvas" width="500" height="340" style="width:100%; border-radius:8px; background:#0a0f1a;"></canvas>
+                        <div style="text-align:center; margin-top:8px; font-size:10px; color:var(--cyan);">Sharp localized intensity preserved</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diffusion Generation -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">DIFFUSION GENERATION</div>
+                    <div class="panel-tag" id="diffusionStatus">READY</div>
+                </div>
+                <div class="panel-body">
+                    <button class="btn-primary" id="generateBtn" onclick="runDiffusion()" style="width:100%;">
+                        ▶ GENERATE FINE FIELD
+                    </button>
+                    <div class="diffusion-progress mt-md" id="diffusionProgress" style="display:none;">
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill" id="diffProgressBar"></div>
+                        </div>
+                        <div class="diffusion-log" id="diffusionLog"></div>
+                    </div>
+                    <div class="diffusion-result" id="diffusionResult" style="display:none;">
+                        <div class="diff-stat"><div class="diff-stat-label">Resolution</div><div class="diff-stat-value" style="color:var(--cyan);">5 km</div></div>
+                        <div class="diff-stat"><div class="diff-stat-label">Enhancement</div><div class="diff-stat-value" style="color:var(--cyan);">4×</div></div>
+                        <div class="diff-stat"><div class="diff-stat-label">Peak Temp</div><div class="diff-stat-value" style="color:var(--red);">47.7°C</div></div>
+                        <div class="diff-stat"><div class="diff-stat-label">Peak Preserved</div><div class="diff-stat-value" style="color:var(--green);">YES ✓</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== PAGE: ALERT CENTER ========== -->
+        <div class="page" id="page-alerts">
+            <div class="page-header">
+                <div class="page-title">Alert Center</div>
+                <div class="page-subtitle">Operational severity classification and hyper-local impact alerting.</div>
+            </div>
+
+            <div class="severity-grid" id="severityGrid"></div>
+
+            <div class="grid-2-1">
+                <div>
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">ALERT FEED</div>
+                            <div class="panel-tag" id="alertCountTag">—</div>
+                        </div>
+                        <div class="panel-body" id="alertsList"></div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">ALERT MAP</div>
+                        <div class="panel-tag">GEOSPATIAL</div>
+                    </div>
+                    <div style="position:relative;">
+                        <div id="alertMap" style="height:500px;"></div>
+                    </div>
+                    <div style="padding:12px 18px; text-align:center;">
+                        <button class="btn-secondary" onclick="flyToEvent()">⟶ FLY TO SEVERE EVENT</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== PAGE: EVENT ANALYSIS ========== -->
+        <div class="page" id="page-analysis">
+            <div class="page-header">
+                <div class="page-title">May 2020 North India Heatwave</div>
+                <div class="page-subtitle">Prototype Benchmark / Demonstration — validated against ERA5 reanalysis.</div>
+            </div>
+
+            <!-- Benchmark Table -->
+            <div class="panel mb-md">
+                <div class="panel-header">
+                    <div class="panel-title">99TH PERCENTILE PEAK TEMPERATURE</div>
+                    <div class="panel-tag">BENCHMARK COMPARISON</div>
+                </div>
+                <div class="panel-body" id="benchmarkPeakTemp"></div>
+            </div>
+
+            <!-- Spatial Sharpness Bars -->
+            <div class="panel mb-md">
+                <div class="panel-header">
+                    <div class="panel-title">SPATIAL SHARPNESS (GRADIENT METRIC)</div>
+                    <div class="panel-tag">HIGHER = SHARPER</div>
+                </div>
+                <div class="panel-body" id="benchmarkSharpness"></div>
+            </div>
+
+            <!-- Summary Table -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">FULL COMPARISON TABLE</div>
+                    <div class="panel-tag">PROTOTYPE DATA</div>
+                </div>
+                <table class="benchmark-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Coarse / Bilinear</th>
+                            <th>Diffusion Ensemble Mean</th>
+                            <th>Single Diffusion</th>
+                            <th>ERA5 Fine Truth</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>99th Percentile Peak Temp</td>
+                            <td class="val-baseline">47.1°C <span class="note">(lost 0.6°C)</span></td>
+                            <td class="val-highlight">47.7°C <span class="note">(exact recovery)</span></td>
+                            <td>48.0°C</td>
+                            <td class="val-truth">47.7°C</td>
+                        </tr>
+                        <tr>
+                            <td>Spatial Sharpness</td>
+                            <td class="val-baseline">0.535 <span class="note">(33% smoothed)</span></td>
+                            <td class="val-highlight">0.781</td>
+                            <td>0.985 <span class="note">(sharp)</span></td>
+                            <td class="val-truth">0.798</td>
+                        </tr>
+                        <tr>
+                            <td>Spectral Smoothing Penalty</td>
+                            <td class="val-baseline">High</td>
+                            <td class="val-highlight">Zero bias on peak</td>
+                            <td>Generative spread</td>
+                            <td class="val-truth">Ground Truth</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ========== PAGE: SYSTEM STATUS ========== -->
+        <div class="page" id="page-system">
+            <div class="page-header">
+                <div class="page-title">System Status</div>
+                <div class="page-subtitle">Operational health monitoring and API endpoint verification.</div>
+            </div>
+
+            <!-- System Components -->
+            <div class="system-grid" id="systemGrid"></div>
+
+            <div class="grid-2">
+                <!-- System Logs -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">SYSTEM LOG</div>
+                        <div class="panel-tag" id="logStatus">IDLE</div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="terminal" id="systemTerminal">
+                            <div style="color:var(--text-dim);">Waiting for forecast cycle...</div>
+                        </div>
+                        <button class="btn-secondary mt-md" onclick="replayLogs()">↻ REPLAY LOGS</button>
+                    </div>
+                </div>
+
+                <!-- API Console -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">API ENDPOINTS</div>
+                        <div class="panel-tag">REST API</div>
+                    </div>
+                    <div id="apiEndpoints"></div>
+                    <div class="panel-body">
+                        <button class="btn-secondary" id="testApiBtn" onclick="testApi()" style="width:100%;">⟶ TEST API</button>
+                        <div id="apiResponse" class="mt-md" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /main-content -->
+</div><!-- /app-shell -->
+
+<!-- Demo Mode Modal -->
+<div class="demo-modal-overlay" id="demoModal">
+    <div class="demo-modal">
+        <h3>⚠ STORMIS Prototype Simulation</h3>
+        <p>All forecast values, processing states, and alert data shown in this demonstration are <strong>simulated frontend data</strong> based on the prototype benchmark scenario (May 2020 North India Heatwave).</p>
+        <p style="margin-top:10px;">This interface is designed for the SIH project explanation video and does not connect to live operational forecasting systems.</p>
+        <button onclick="toggleDemoModal()">UNDERSTOOD</button>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
